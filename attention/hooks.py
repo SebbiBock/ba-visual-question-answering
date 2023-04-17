@@ -102,7 +102,7 @@ class EncapsulateTransformerActivationAndGradients(object):
 
         if self.transform is not None:
             activation = self.transform(output)
-        self.activations.append(output.cpu().detach())
+        self.activations.append(activation.cpu().detach())
 
     def save_gradient(self, module, input, output):
         """
