@@ -99,7 +99,7 @@ class EncapsulateTransformerActivationAndGradients(object):
         """
             Activation getter handle that saves the activation and transforms it, if necessary.
         """
-
+        activation = output
         if self.transform is not None:
             activation = self.transform(output)
         self.activations.append(activation.cpu().detach())
