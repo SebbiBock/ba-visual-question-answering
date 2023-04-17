@@ -122,18 +122,18 @@ class EncapsulateTransformerActivationAndGradients(object):
 
     def __call__(self, **kwargs) -> tuple:
         """
-            Calls the model with the registered hooks for inference and returns the
-            output along with the attention activation.
+            Calls the model with the registered hooks for inference and returns the output of the
+            forward call.
 
             :param kwargs: Necessary arguments for the model call, are unpacked.
-            :return: Tuple of model output, gradient and activations
+            :return: Model output.
         """
 
         # Reset at each call if this class is used multiple times
         self.gradients = []
         self.activations = []
 
-        return self.model(**kwargs), self.gradients, self.activations
+        return self.model(**kwargs)
 
     def release(self):
         """
