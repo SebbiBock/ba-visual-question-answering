@@ -3,6 +3,19 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Own entries to not push any data
+.idea
+.html
+.img
+.jpg
+.pdf
+.json
+.zip
+.tar.gz
+.pickle
+.pkl
+.npy
+
 # C extensions
 *.so
 
