@@ -14,13 +14,11 @@ CONFIG = {
     "MODEL_PATH": "Salesforce/blip-vqa-base",
     "PROCESSOR_PATH":  "Salesforce/blip-vqa-base",
     "PATCH_SIZE": 16,
-    "ATTENTION_LAYER_HOOK_NAME": "self_attn.dropout",
-    "": "",
-    "": "",
+    "ATTENTION_LAYER_HOOK_NAME": "self_attn.dropout"
 }
 
 
-def load_model():
+def load_model() -> BlipForQuestionAnswering:
     """
         Loads the model according to the given config, flags eval and returns it
     """
@@ -30,7 +28,7 @@ def load_model():
     return model
 
 
-def load_processor():
+def load_processor() -> BlipProcessor:
     """
         Loads the processor for the given model according to the config and returns it
     """
