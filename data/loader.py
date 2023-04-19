@@ -22,6 +22,7 @@ PATH_DICT = {
     "QUESTION_PATH": DATA_PATH + "vqav2/questions/v2_OpenEnded_mscoco_val2014_questions.json",
     "HUMAN_GAZE_PATH": DATA_PATH + "mhug/mhug/vqa-mhug_gaze.pickle",
     "HUMAN_ANSWERS_PATH": DATA_PATH + "",
+    "BOUNDING_BOXES_PATH": DATA_PATH + "mhug/mhug/vqa-mhug_bboxes.pickle"
 }
 
 
@@ -127,7 +128,21 @@ def load_human_gaze() -> pd.DataFrame:
         gaze_df = pickle.load(f).reset_index()
 
     # Create image id column and return df
-    return gaze_df["question_id"].apply(lambda x: x[:-3])
+    gaze_df["image_id"] = gaze_df["question_id"].apply(lambda x: x[:-3])
+    return gaze_df
+
+
+def load_bounding_boxes() -> pd.DataFrame:
+    """
+        Loads and returns the pd.DataFrame of the bounding boxes.
+
+        :return: pd.DataFrame containing all bounding boxes
+    """
+
+    with open(Path(PATH_DICT["BOUNDING_BOXES_PATH"]), "rb") as f:
+        boxes_df = pickle.load(f)
+
+    return boxes_df
 
 
 def load_human_answers() -> pd.DataFrame:
