@@ -58,11 +58,28 @@ def preprocess(processor, question: str, answer: str, image: Image.Image) -> Dic
     return inputs
 
 
-def process_output(model: torch.nn.Module, image_embeds: torch.FloatTensor, input_ids: torch.LongTensor, attention_mask=None) -> torch.LongTensor:
+def process_output(
+    model: torch.nn.Module,
+    processor: BlipProcessor,
+    image_embeds: torch.FloatTensor,
+    input_ids: torch.LongTensor,
+    attention_mask=None,
+    **kwargs
+) -> str:
     """
         Method to process the output further. Since the forward method of BLIP is usually only used for training,
         it does not return the output token. To fix this, the additional steps in generation for the BLIP model
-        are executed with given model, input and image_embeds (from the output).
+        are executed with given model, input and image_embeds (from the output). The final logits result is then
+        decoded using the processor to get the final model answer token. The **kwargs are necessary to simply be
+        able to plug all input and output into this function across all models.
+
+        :param model: The model to use to further process the output, if necessary
+        :param processor: The processor to use to decode logits into tokens
+        :param image_embeds: The image embeddings from the model forward pass, if necessary (so far, only BLIP)
+        :param input_ids: Input IDs for the question (encoded), if necessary
+        :param attention_mask: Attention mask from the input, if necessary
+        :param kwargs: To be able to simply pass all arguments from input and output, irrelevant ones are ignored
+        :return: Final model answer token to the given question
     """
 
     with torch.no_grad():
@@ -86,11 +103,14 @@ def process_output(model: torch.nn.Module, image_embeds: torch.FloatTensor, inpu
             (question_embeds.size(0), 1), fill_value=model.decoder_start_token_id
         )
 
-        # Create proper logits output and return it
-        return model.text_decoder.generate(
+        # Create proper logits output
+        logits_tensor = model.text_decoder.generate(
             input_ids=bos_ids,
             eos_token_id=model.config.text_config.sep_token_id,
             pad_token_id=model.config.text_config.pad_token_id,
             encoder_hidden_states=question_embeds,
             encoder_attention_mask=question_attention_mask
         )
+
+        # Decode the given logits tensor and return the result
+        return processor.decode(logits_tensor[0], skip_special_tokens=True)

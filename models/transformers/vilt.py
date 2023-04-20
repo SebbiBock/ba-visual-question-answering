@@ -77,3 +77,32 @@ def preprocess(processor, question: str, answer: str, image: Image.Image) -> Dic
     inputs["labels"] = label
 
     return inputs
+
+
+def process_output(
+    model: torch.nn.Module,
+    processor: ViltProcessor,
+    image_embeds: torch.FloatTensor,
+    input_ids: torch.LongTensor,
+    attention_mask=None,
+    **kwargs
+) -> str:
+    """
+        Method to process the output further. The logits are  decoded using the processor to get the final model answer
+        token. The **kwargs are necessary to simply be able to plug all input and output into this function across all
+        models, since not all models need the same input, but for consistency, all parameters need to remain.
+
+        :param model: The model to use to further process the output, if necessary
+        :param processor: The processor to use to decode logits into tokens
+        :param image_embeds: The image embeddings from the model forward pass, if necessary (so far, only BLIP)
+        :param input_ids: Input IDs for the question (encoded), if necessary
+        :param attention_mask: Attention mask from the input, if necessary
+        :param kwargs: To be able to simply pass all arguments from input and output, irrelevant ones are ignored
+        :return: Final model answer token to the given question
+    """
+
+    # Index of the model answer token
+    idx = kwargs["logits"].argmax(-1).item()
+
+    # Decode using the token index and return
+    return model.config.id2label[idx]
