@@ -4,8 +4,10 @@
 
 import json
 import pickle
+import os
 
 import pandas as pd
+import numpy as np
 
 from pathlib import Path
 from PIL import Image
@@ -22,7 +24,8 @@ PATH_DICT = {
     "QUESTION_PATH": DATA_PATH + "vqav2/questions/v2_OpenEnded_mscoco_val2014_questions.json",
     "HUMAN_GAZE_PATH": DATA_PATH + "mhug/mhug/vqa-mhug_gaze.pickle",
     "HUMAN_ANSWERS_PATH": DATA_PATH + "",
-    "BOUNDING_BOXES_PATH": DATA_PATH + "mhug/mhug/vqa-mhug_bboxes.pickle"
+    "BOUNDING_BOXES_PATH": DATA_PATH + "mhug/mhug/vqa-mhug_bboxes.pickle",
+    "GENERATED_HEATMAP_DIR_PATH": DATA_PATH + "mhug/deliverables/vqa-mhug/img-attmap/"
 }
 
 
@@ -130,6 +133,27 @@ def load_human_gaze() -> pd.DataFrame:
     # Create image id column and return df
     gaze_df["image_id"] = gaze_df["question_id"].apply(lambda x: x[:-3])
     return gaze_df
+
+
+def load_human_heatmaps(question_id: str, reduction: callable = None) -> Union[List[np.array], np.array]:
+    """
+        Loads the already generated heatmaps of every participant for the given question id. If a reduction
+        callable is specified, it is used to reduce the heatmaps across all specified participants to one,
+         otherwise, a List of heatmaps is returned.
+
+        :param question_id: The question ID, as str
+        :param reduction: Reductiom method to apply to all heatmaps (e.g. np.mean), defaults to None
+        :return: Either a List of heatmaps or a reduced heatmap
+    """
+
+    # Load all heatmaps
+    heatmap_paths = [x for x in os.listdir(Path(PATH_DICT["GENERATED_HEATMAP_DIR_PATH"])) if question_id in x]
+    heatmaps = np.array([np.load(os.path.join(PATH_DICT["GENERATED_HEATMAP_DIR_PATH"], x)) for x in heatmap_paths])
+
+    if reduction is not None:
+        heatmaps = reduction(heatmaps, axis=0)
+
+    return heatmaps
 
 
 def load_bounding_boxes() -> pd.DataFrame:
