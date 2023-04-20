@@ -59,6 +59,6 @@ def plot_overview_for_question(
     fig.subplots_adjust(top=1.2)
 
     # Show and save plot
-    plt.savefig(Path(get_output_path(), f"/{question_id}_heatmap_comparison.png"))
+    plt.savefig(Path(get_output_path(), f"{question_id}_heatmap_comparison.png"))
     plt.show()
     plt.close()
