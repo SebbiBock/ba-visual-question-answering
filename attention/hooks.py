@@ -133,7 +133,7 @@ class EncapsulateTransformerActivationAndGradients(object):
         self.gradients = []
         self.activations = []
 
-        # Model call and gradient descent with the loss to get gradients
+        # Model call and gradient descent with the loss to get gradients w.r.t the predicted class
         result = self.model(**kwargs)
         result.loss.backward()
 
