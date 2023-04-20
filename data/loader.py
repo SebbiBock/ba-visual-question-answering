@@ -23,7 +23,7 @@ PATH_DICT = {
     "ANNOTATION_PATH": DATA_PATH + "vqav2/annotations/v2_mscoco_val2014_annotations.json",
     "QUESTION_PATH": DATA_PATH + "vqav2/questions/v2_OpenEnded_mscoco_val2014_questions.json",
     "HUMAN_GAZE_PATH": DATA_PATH + "mhug/mhug/vqa-mhug_gaze.pickle",
-    "HUMAN_ANSWERS_PATH": DATA_PATH + "",
+    "HUMAN_ANSWERS_PATH": DATA_PATH + "mhug/mhug/vqa-mhug_answers.pickle",
     "BOUNDING_BOXES_PATH": DATA_PATH + "mhug/mhug/vqa-mhug_bboxes.pickle",
     "GENERATED_HEATMAP_DIR_PATH": DATA_PATH + "mhug/deliverables/vqa-mhug/img-attmap/"
 }
@@ -139,7 +139,7 @@ def load_human_heatmaps(question_id: str, reduction: callable = None) -> Union[L
     """
         Loads the already generated heatmaps of every participant for the given question id. If a reduction
         callable is specified, it is used to reduce the heatmaps across all specified participants to one,
-         otherwise, a List of heatmaps is returned.
+        otherwise, a List of heatmaps is returned.
 
         :param question_id: The question ID, as str
         :param reduction: Reductiom method to apply to all heatmaps (e.g. np.mean), defaults to None
@@ -171,8 +171,13 @@ def load_bounding_boxes() -> pd.DataFrame:
 
 def load_human_answers() -> pd.DataFrame:
     """
+        Loads and returns all human answers.
 
+        :return: pd.DataFrame containing all human answers.
     """
 
-    pass
+    # Load and reset multi-level index
+    with open(Path(PATH_DICT["HUMAN_ANSWERS_PATH"]), "rb") as f:
+        answer_df = pickle.load(f).reset_index()
 
+    return answer_df
