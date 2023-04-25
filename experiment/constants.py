@@ -1,4 +1,5 @@
-import os.path
+import os
+
 
 ### FILES AND FOLDERS ###
 
@@ -11,6 +12,11 @@ DATADIR = os.path.join(DIR, 'exp_output')
 
 # the IMGDIR is the path to the directory that contains the image files
 IMGDIR = os.path.join(DIR, 'images')
+
+# For all necessary directories, create them if they do not yet exist
+for d in [DATADIR, IMGDIR]:
+    if not os.path.isdir(d):
+        os.mkdir(d)
 
 # ask for the participant name, to use as the name for the logfile...
 LOGFILENAME = input("Participant name: ")
@@ -28,13 +34,13 @@ LOGFILE = os.path.join(DATADIR, LOGFILENAME)
 DISPTYPE = 'psychopy'
 
 # the DISPSIZE is the monitor resolution, e.g. (1024,768)
-DISPSIZE = (1920, 1080)
+DISPSIZE = (2560, 1440)
 
-# the SCREENSIZE is the physical screen size in centimeters, e.g. (39.9,29.9)
-SCREENSIZE = (34.5, 19.8)
+# the SCREENSIZE is the physical screen size in centimeters. LAB: (59.5, 33.5).
+SCREENSIZE = (59.5, 33.5)
 
-# the SCREENDIST is the distance in centimeters between the participant and the display
-SCREENDIST = 75.0
+# the SCREENDIST is the distance in centimeters between the participant and the display. LAB: 100.
+SCREENDIST = 100.0
 
 # set FULLSCREEN to True for fullscreen displaying, or to False for a windowed
 # display
@@ -61,14 +67,14 @@ ITI = 1500  # ms
 
 # the TRACKERTYPE indicates the brand of eye tracker, and should be one of the
 # following: 'eyelink', 'smi', 'tobii' 'dumbdummy', 'dummy'
-TRACKERTYPE = 'dummy'
+TRACKERTYPE = 'eyelink'
 
 # the EYELINKCALBEEP constant determines whether a beep should be sounded on
 # the appearance of every calibration target (EyeLink only)
 EYELINKCALBEEP = False
 
 # set DUMMYMODE to True if no tracker is attached
-DUMMYMODE = True
+DUMMYMODE = False
 
 
 
