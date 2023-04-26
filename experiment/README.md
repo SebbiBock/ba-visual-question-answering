@@ -22,9 +22,9 @@ First, make sure that the participant is not wearing any glasses!
 1) Determine the dominant eye of the participant: Place them at the window and make them look toward a specific point
 on the shelf. Then, they should form a triangle with their hands around the point and move it closer towards them. The eye it lands on is their dominant eye.
 If it stays in the middle, just pick the right eye.
-2) Let the participant sit in the chair and adjust the chair as well as the headrest to their preference.
+2) Let the participant sit in the chair and adjust the chair as well as the headrest to their preference. However, make sure that their eye leyel is at the top 25% of the monitor.
 3) Make sure that the EyeTracker, Headrest and Monitor are placed central (so in a line) from the viewpoint of the participant.
-Also, make sure that the EyeTracker is not in their line of sight.
+Also, make sure that the EyeTracker is not in their line of sight to the monitor, but as close to the monitor as possible.
 4) Measure the necessary distances and enter them into the settings in the EyeTracker-PC.
 5) Carefully remove the cap from the EyeTracker.
 6) Adjust the pupil size so that the pupil is filled as much as possible without any other dark blue in the eyeball region
