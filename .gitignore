@@ -17,6 +17,8 @@ __pycache__/
 .pkl
 .npy
 .txt
+experiment/exp_output/
+outputs/
 
 # C extensions
 *.so

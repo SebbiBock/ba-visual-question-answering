@@ -75,9 +75,9 @@ Between these steps, a calibration stimulus might appear that you simply need to
 You can view the image for as long as you want.\n
 Once you want to answer the given question, simply press any key. This will lead you to an input field for your answer.\n
 Once you entered your answer, this repeats until every Image-Question pair has been completed.\n
-If you have any questions, let us know. \n
+Now, three test trials will be run. Their results do not matter, this is just for you to get familiar with the experiment setup. \n
 \n
-Ready? Press any key to start the experiment...
+Ready? Press any key to start the test runs...
 """
 
 CALIBRATION_INSTRUCTIONS = """
@@ -97,6 +97,14 @@ Please generate your VP-Code. Follow these three steps and concatenate the resul
 2) Take the last two digits of the year you were born. Example: 1998 -> 98\n
 3) Take the last two letters of the city you were born in. Example: Frankfurt -> RT\n
 Then, simply concatenate the result and enter it below. Full Example: EV98RT\n
+"""
+
+EXPERIMENT_START_TEXT = """
+The test trials have ended.\n
+If you still have any questions to ask, feel free to ask now.\n
+Otherwise, the real experiment can begin.\n
+\n
+Press any key to start the experiment...
 """
 
 EXIT_TEXT = """

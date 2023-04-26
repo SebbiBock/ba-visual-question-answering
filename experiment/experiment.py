@@ -14,11 +14,7 @@ from pygaze.liblog import Logfile
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from data import loader
 from textbox import TextInputBox
-from experiment_util import create_and_return_output_directory, \
-	create_participant_string,\
-	get_group_image_directory,\
-	get_participant_group, \
-	save_demographic_data
+from experiment_util import *
 
 
 ### SETUP ###
@@ -40,9 +36,9 @@ tracker = EyeTracker(disp)
 # Get the group for the given participant
 participant_group = get_participant_group()
 
-# Get the directory to the images for the given group
+# Get the directory to the images for the given group and test images
 image_dir = get_group_image_directory(participant_group)
-
+test_dir = get_test_image_directory()
 
 
 ### VP-CODE + LOGGING ###
@@ -75,6 +71,10 @@ random.shuffle(images)
 # Get question ids and questions to images
 question_ids = [str(x).split(".")[0] for x in images]
 questions = loader.load_questions(question_ids)
+
+# Load test data
+test_images = os.listdir(test_dir)
+test_questions = loader.load_questions([str(y).split(".")[0] for y in test_images])
 
 
 
@@ -127,6 +127,49 @@ disp.show()
 
 # wait for a keypress
 kb.get_key(keylist=None, timeout=None, flush=True)
+
+
+
+### TEST RUNS ###
+
+# Clear the screen
+for test_question, test_image in zip(test_questions, test_images):
+
+	# Clear the screen
+	scr.clear()
+
+	# Present question and let the participant view it as long as they want
+	scr.draw_text(text=f"Question: {test_question}", fontsize=TEXTSIZE)
+	scr.draw_text(text="Press any key to view the image...", fontsize=TEXTSIZE - 1, pos=(center_screen_x, center_screen_y + 250), centre=True)
+	disp.fill(scr)
+	disp.show()
+
+	# Continue with any button press and clear the screen afterwards
+	kb.get_key(keylist=None, timeout=None, flush=True)
+	scr.clear()
+
+	# Start tracking and log some stuff
+
+	# Present the image
+	scr.draw_image(os.path.join(test_dir, test_image))
+	disp.fill(scr)
+	disp.show()
+
+	# Wait for the participant to continue
+	kb.get_key(keylist=None, timeout=None, flush=True)
+
+# Show message indicating that real experiment will now start
+scr.clear()
+scr.draw_text(text=EXPERIMENT_START_TEXT, fontsize=TEXTSIZE)
+disp.fill(scr)
+disp.show()
+
+# wait for a keypress
+kb.get_key(keylist=None, timeout=None, flush=True)
+
+
+
+### MAIN EXPERIMENT ###
 
 for trial_nr, (image, question, question_id) in enumerate(zip(images, questions, question_ids)):
 

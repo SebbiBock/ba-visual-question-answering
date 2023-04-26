@@ -38,6 +38,26 @@ def get_group_image_directory(part_group: int):
     return img_dir
 
 
+def get_test_image_directory():
+    """
+        Returns the directory to the test images.
+
+        :return: Directory to the test images.
+    """
+
+    # Path to the image file for the given group
+    test_dir = os.path.join(DIR, f'images/test')
+
+    # Create the directory, if it does not yet exist
+    if not os.path.isdir(test_dir):
+        os.mkdir(test_dir)
+
+        # Raise exception that no images could be found
+        raise Exception(f"Aborting experiment: No image files found under {test_dir}!")
+
+    return test_dir
+
+
 def create_and_return_output_directory(vp_name_str: str):
     """
         Creates and returns the output directory for the given participant.
