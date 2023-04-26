@@ -16,6 +16,7 @@ __pycache__/
 .pickle
 .pkl
 .npy
+.txt
 
 # C extensions
 *.so
