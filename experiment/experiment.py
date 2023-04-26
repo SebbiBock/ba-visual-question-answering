@@ -84,7 +84,6 @@ age = TextInputBox(
 	key_list=[str(x) for x in range(0, 10)]
 ).main_loop()
 
-assert 0 == 1
 
 
 ### CALIBRATION ###
