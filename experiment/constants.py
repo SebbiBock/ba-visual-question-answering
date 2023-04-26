@@ -18,12 +18,6 @@ for d in [DATADIR, IMGDIR]:
     if not os.path.isdir(d):
         os.mkdir(d)
 
-# ask for the participant name, to use as the name for the logfile...
-LOGFILENAME = input("Participant name: ")
-
-# ...then use the LOGFILENAME to make create the path to the logfile
-LOGFILE = os.path.join(DATADIR, LOGFILENAME)
-
 
 
 ### DISPLAY ###
@@ -42,9 +36,11 @@ SCREENSIZE = (59.5, 33.5)
 # the SCREENDIST is the distance in centimeters between the participant and the display. LAB: 100.
 SCREENDIST = 100.0
 
-# set FULLSCREEN to True for fullscreen displaying, or to False for a windowed
-# display
+# Whether to use a Fullscreen or not
 FULLSCREEN = True
+
+# If the mouse should be visible
+MOUSEVISIBLE = False
 
 # BGC is for BackGroundColour, FGC for ForeGroundColour; both are RGB guns,
 # which contain three values between 0 and 255, representing the intensity of
@@ -94,8 +90,21 @@ Ready? Press any key to start the experiment...
 """
 
 CALIBRATION_INSTRUCTIONS = """
-First, we will calibrate you to the EyeTracker.\n
+Now, we will calibrate you to the EyeTracker.\n
 For this, we will xyz.\n
 \n
 Press any key to start the calibration...
+"""
+
+VP_INSTRUCTIONS = """
+First, please generate your VP-Code. Follow these three steps and concatenate the results to create your VP-Code:\n
+1) Take the first two letters of your mother's first name. Example: Eva -> EV\n
+2) Take the last two digits of the year you were born. Example: 1998 -> 98\n
+3) Take the last two letters of the city you were born in. Example: Frankfurt -> RT\n
+Then, simply concatenate the result and enter it below. Full Example: EV98RT\n
+"""
+
+EXIT_TEXT = """
+This is the end of the experiment. Thank you for participating!\n
+Press any key to stop the experiment.\n
 """
