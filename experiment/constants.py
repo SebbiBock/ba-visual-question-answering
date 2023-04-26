@@ -7,17 +7,6 @@ import os
 # be used to determine where to store and retrieve data files
 DIR = os.path.dirname(__file__)
 
-# the DATADIR is the path to the directory where data files will be stored
-DATADIR = os.path.join(DIR, 'exp_output')
-
-# the IMGDIR is the path to the directory that contains the image files
-IMGDIR = os.path.join(DIR, 'images')
-
-# For all necessary directories, create them if they do not yet exist
-for d in [DATADIR, IMGDIR]:
-    if not os.path.isdir(d):
-        os.mkdir(d)
-
 
 
 ### DISPLAY ###

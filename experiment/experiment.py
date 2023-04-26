@@ -1,7 +1,7 @@
+import random
 import sys
 import os
 
-import pandas as pd
 import pygaze.libtime as timer
 
 from constants import *
@@ -14,6 +14,11 @@ from pygaze.liblog import Logfile
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from data import loader
 from textbox import TextInputBox
+from experiment_util import create_and_return_output_directory, \
+	create_participant_string,\
+	get_group_image_directory,\
+	get_participant_group, \
+	save_demographic_data
 
 
 ### SETUP ###
@@ -32,6 +37,13 @@ kb = Keyboard()
 # Initialize the EyeTracker-Class
 tracker = EyeTracker(disp)
 
+# Get the group for the given participant
+participant_group = get_participant_group()
+
+# Get the directory to the images for the given group
+image_dir = get_group_image_directory(participant_group)
+
+
 
 ### VP-CODE + LOGGING ###
 
@@ -44,19 +56,21 @@ vp_code = TextInputBox(
 	caps=True
 ).main_loop()
 
-# Get current timestamp and convert to usable string for name of the logging file
-timestamp_str = pd.Timestamp.now().strftime('%Y-%m-%d-%H-%M')
+# Create and get output directory path
+participant_string = create_participant_string(vp_code)
+output_dir = create_and_return_output_directory(participant_string)
 
 # Create the logging file with the VP Code and the timestamp string
-log = Logfile(filename=os.path.join(DATADIR, timestamp_str + "-" + vp_code))
+log = Logfile(filename=os.path.join(output_dir, "logger"))
 log.write(["trial", "question_id", "time_on_image"])
 
 
 
 ### LOAD DATA ###
 
-# read all image names
-images = os.listdir(IMGDIR)
+# Read all image names and shuffle their order to avoid sequencing effects
+images = os.listdir(image_dir)
+random.shuffle(images)
 
 # Get question ids and questions to images
 question_ids = [str(x).split(".")[0] for x in images]
@@ -83,6 +97,9 @@ age = TextInputBox(
 	instruction="Please enter your age",
 	key_list=[str(x) for x in range(0, 10)]
 ).main_loop()
+
+# Save demographic data
+save_demographic_data(output_dir, age=age, gender=gender, group=participant_group)
 
 
 
@@ -136,7 +153,7 @@ for trial_nr, (image, question, question_id) in enumerate(zip(images, questions,
 	tracker.status_msg(f"Starting trial {trial_nr + 1} / {len(images)}")
 
 	# Present the image
-	scr.draw_image(os.path.join(IMGDIR, image))
+	scr.draw_image(os.path.join(image_dir, image))
 	disp.fill(scr)
 	t0 = disp.show()
 	tracker.log("image online at %d" % t0)
