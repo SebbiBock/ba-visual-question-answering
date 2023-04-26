@@ -41,8 +41,8 @@ class TextInputBox(object):
         self.caps = caps
 
         # Create sub and super text boxes
-        self.subtext_box = pspy.visual.TextStim(pygaze.expdisplay, subtext, pos=(0, -200), color=text_color) if subtext is not None else None
-        self.supertext_box = pspy.visual.TextStim(pygaze.expdisplay, supertext, pos=(0, 200), color=text_color) if supertext is not None else None
+        self.subtext_box = pspy.visual.TextStim(pygaze.expdisplay, subtext, pos=(0, -220), color=text_color) if subtext is not None else None
+        self.supertext_box = pspy.visual.TextStim(pygaze.expdisplay, supertext, pos=(0, 220), color=text_color) if supertext is not None else None
 
         # Make font size of the subtext smaller
         if self.subtext_box is not None:
