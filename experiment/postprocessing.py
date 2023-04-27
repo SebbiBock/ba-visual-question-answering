@@ -286,7 +286,7 @@ def convert_edf_to_dataframe(participant_string: str):
         subprocess.run(["edf2asc", path_to_edf_file], shell=True)
 
     # Convert the asc file to a dictionary
-    data = read_edf(path_to_asc_file, start="image online at", stop="TRIALEND")
+    data = read_edf(path_to_asc_file, start="IMGON", stop="TRIALEND")
 
     return data
 

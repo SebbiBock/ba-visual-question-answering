@@ -220,7 +220,7 @@ for trial_nr, (image, question, question_id) in enumerate(zip(images, questions,
 	# Actually show the image and log
 	disp.fill(scr)
 	t0 = disp.show()
-	tracker.log("image online at %d" % t0)
+	tracker.log("IMGON at %d" % t0)
 
 
 	# Wait for the participant to continue
@@ -230,10 +230,10 @@ for trial_nr, (image, question, question_id) in enumerate(zip(images, questions,
 	tracker.log("TRIALEND %d" % trial_nr)
 	tracker.stop_recording()
 
-	# reset screen
+	# Reset screen to blank
 	disp.fill()
 	t1 = disp.show()
-	tracker.log("image offline at %d" % t1)
+	tracker.log("IMGOFF %d" % t1)
 
 	# Create input box for the answer
 	answer = TextInputBox(
