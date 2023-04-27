@@ -58,7 +58,7 @@ output_dir = create_and_return_output_directory(participant_string)
 
 # Create the logging file with the VP Code and the timestamp string
 log = Logfile(filename=os.path.join(output_dir, "logger"))
-log.write(["trial", "question_id", "time_on_image"])
+log.write(["trial", "question_id", "time_on_image", "answer"])
 
 
 
@@ -148,8 +148,6 @@ for test_question, test_image in zip(test_questions, test_images):
 	kb.get_key(keylist=None, timeout=None, flush=True)
 	scr.clear()
 
-	# Start tracking and log some stuff
-
 	# Present the image
 	scr.draw_image(os.path.join(test_dir, test_image))
 	disp.fill(scr)
@@ -157,6 +155,14 @@ for test_question, test_image in zip(test_questions, test_images):
 
 	# Wait for the participant to continue
 	kb.get_key(keylist=None, timeout=None, flush=True)
+
+	# Create input box for the answer
+	test_answer = TextInputBox(
+		scr,
+		disp,
+		FGC,
+		instruction="Your answer",
+	).main_loop()
 
 # Show message indicating that real experiment will now start
 scr.clear()
@@ -213,8 +219,18 @@ for trial_nr, (image, question, question_id) in enumerate(zip(images, questions,
 	t1 = disp.show()
 	tracker.log("image offline at %d" % t1)
 
+	# Create input box for the answer
+	answer = TextInputBox(
+		scr,
+		disp,
+		FGC,
+		instruction="Your answer",
+	).main_loop()
+
+	print(answer)
+
 	# Write to log
-	log.write([trial_nr, question_id, t1-t0])
+	log.write([trial_nr, question_id, t1-t0, answer])
 
 	# inter trial interval
 	timer.pause(ITI)
