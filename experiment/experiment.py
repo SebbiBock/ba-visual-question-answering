@@ -59,7 +59,9 @@ tracker = EyeTracker(disp, data_file=f"exp_output/{participant_string}/tracker_d
 
 # Create the logging file with the VP Code and the timestamp string
 log = Logfile(filename=os.path.join(output_dir, "logger"))
-log.write(["trial", "question_id", "time_on_image", "answer"])
+log.write([
+"trial", "question_id", "time_on_image", "answer", "bb_image_x_min", "bb_image_x_max", "bb_image_y_min, bb_image_y_max"
+])
 
 
 
@@ -208,6 +210,16 @@ for trial_nr, (image, question, question_id) in enumerate(zip(images, questions,
 	t0 = disp.show()
 	tracker.log("image online at %d" % t0)
 
+	# Get image bboxes: For the maximum, add 0.5 so it rounds up in doubt, for the minimum int automatically rounds down
+	x_min = center_screen_x - int(scr.screen[-1].size[0] / 2)
+	x_max = center_screen_x + int(scr.screen[-1].size[0] / 2 + 0.5)
+	y_min = center_screen_y - int(scr.screen[-1].size[1] / 2)
+	y_max = center_screen_y + int(scr.screen[-1].size[1] / 2 + 0.5)
+
+	# Draw fixations for debug to assure proper bounding box calculation. TODO: Remove once assured!
+	scr.draw_fixation(pos=(x_min, y_min), color="red")
+	scr.draw_fixation(pos=(x_max, y_max), color="blue")
+
 	# Wait for the participant to continue
 	kb.get_key(keylist=None, timeout=None, flush=True)
 
@@ -229,7 +241,7 @@ for trial_nr, (image, question, question_id) in enumerate(zip(images, questions,
 	).main_loop()
 
 	# Write to log
-	log.write([trial_nr, question_id, t1-t0, answer])
+	log.write([trial_nr, question_id, t1-t0, answer, x_min, x_max, y_min, y_max])
 
 	# inter trial interval
 	timer.pause(ITI)
