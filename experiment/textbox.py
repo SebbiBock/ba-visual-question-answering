@@ -97,6 +97,10 @@ class TextInputBox(object):
                     # Append to answer
                     self.text += letter
 
+            # Add whitespace if space is pressed
+            if pspy.event.getKeys(['space']):
+                self.text += " "
+
             # Delete the last entry of the answer if the backspace is pressed
             if pspy.event.getKeys(['backspace']):
                 self.text = self.text[:-1]
