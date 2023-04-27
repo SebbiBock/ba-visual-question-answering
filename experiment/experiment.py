@@ -14,6 +14,7 @@ from pygaze.liblog import Logfile
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from data import loader
 from textbox import TextInputBox
+from postprocessing import convert_edf_to_dataframe
 from experiment_util import *
 
 
@@ -29,9 +30,6 @@ center_screen_y = int(scr.dispsize[1] / 2)
 
 # Create the keyboard for inputs
 kb = Keyboard()
-
-# Initialize the EyeTracker-Class
-tracker = EyeTracker(disp)
 
 # Get the group for the given participant
 participant_group = get_participant_group()
@@ -55,6 +53,9 @@ vp_code = TextInputBox(
 # Create and get output directory path
 participant_string = create_participant_string(vp_code)
 output_dir = create_and_return_output_directory(participant_string)
+
+# Initialize the EyeTracker-Class and set its output file to the participant folder
+tracker = EyeTracker(disp, data_file=f"exp_output/{participant_string}/tracker_data.edf")
 
 # Create the logging file with the VP Code and the timestamp string
 log = Logfile(filename=os.path.join(output_dir, "logger"))
@@ -227,8 +228,6 @@ for trial_nr, (image, question, question_id) in enumerate(zip(images, questions,
 		instruction="Your answer",
 	).main_loop()
 
-	print(answer)
-
 	# Write to log
 	log.write([trial_nr, question_id, t1-t0, answer])
 
@@ -263,3 +262,7 @@ kb.get_key(keylist=None, timeout=None, flush=True)
 
 # close the Display
 disp.close()
+
+# If not in dummy mode: run the postprocessing script to convert the files
+if not DUMMYMODE:
+	convert_edf_to_dataframe(participant_string)
