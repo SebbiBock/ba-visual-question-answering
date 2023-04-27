@@ -103,6 +103,7 @@ EXPERIMENT_START_TEXT = """
 The test trials have ended.\n
 If you still have any questions to ask, feel free to ask now.\n
 Otherwise, the real experiment can begin.\n
+Please make sure that your answers do not contain any typos!\n
 \n
 Press any key to start the experiment...
 """
