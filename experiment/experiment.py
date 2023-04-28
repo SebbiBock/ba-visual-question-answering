@@ -55,7 +55,7 @@ participant_string = create_participant_string(vp_code)
 output_dir = create_and_return_output_directory(participant_string)
 
 # Initialize the EyeTracker-Class and set its output file to the participant folder
-tracker = EyeTracker(disp, data_file=f"exp_output/{participant_string}/tracker_data.edf")
+tracker = EyeTracker(disp, data_file=f"exp_output/{participant_string}/tracker.edf")
 
 # Create the logging file with the VP Code and the timestamp string
 log = Logfile(filename=os.path.join(output_dir, "logger"))

@@ -278,7 +278,7 @@ def convert_edf_to_dataframe(participant_string: str):
     """
 
     # Assemble path
-    path_to_edf_file = f"exp_output/{participant_string}/tracker_data.edf"
+    path_to_edf_file = f"exp_output/{participant_string}/tracker.edf"
     path_to_asc_file = path_to_edf_file.split(".")[0] + ".asc"
 
     # Check whether the edf file even exists
