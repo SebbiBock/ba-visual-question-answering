@@ -281,6 +281,10 @@ def convert_edf_to_dataframe(participant_string: str):
     path_to_edf_file = f"exp_output/{participant_string}/tracker_data.edf"
     path_to_asc_file = path_to_edf_file.split(".")[0] + ".asc"
 
+    # Check whether the edf file even exists
+    if not os.path.isfile(path_to_edf_file):
+        raise Exception("No edf file could be found under the specified path.")
+
     # Run the edf2asc command for the given participant output folder if it does not yet exist
     if not os.path.isfile(path_to_asc_file):
         subprocess.run(["edf2asc", path_to_edf_file], shell=True)
