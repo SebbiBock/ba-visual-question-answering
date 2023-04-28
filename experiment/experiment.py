@@ -151,8 +151,11 @@ for test_question, test_image in zip(test_questions, test_images):
 	kb.get_key(keylist=None, timeout=None, flush=True)
 	scr.clear()
 
+	# Get image scale
+	test_scale = get_image_scale(os.path.join(test_dir, test_image), scr.dispsize)
+
 	# Present the image
-	scr.draw_image(os.path.join(test_dir, test_image))
+	scr.draw_image(os.path.join(test_dir, test_image), scale=test_scale)
 	disp.fill(scr)
 	disp.show()
 
@@ -195,6 +198,9 @@ for trial_nr, (image, question, question_id) in enumerate(zip(images, questions,
 	kb.get_key(keylist=None, timeout=None, flush=True)
 	scr.clear()
 
+	# Get image scale
+	scale = get_image_scale(os.path.join(image_dir, image), scr.dispsize)
+
 	# perform a drift check
 	tracker.drift_correction()
 
@@ -205,7 +211,7 @@ for trial_nr, (image, question, question_id) in enumerate(zip(images, questions,
 	tracker.status_msg(f"Starting trial {trial_nr + 1} / {len(images)}")
 
 	# Present the image
-	scr.draw_image(os.path.join(image_dir, image))
+	scr.draw_image(os.path.join(image_dir, image), scale=scale)
 
 	# Get image bboxes: For the maximum, add 0.5 so it rounds up in doubt, for the minimum int automatically rounds down
 	x_min = center_screen_x - int(scr.screen[-1].size[0] / 2)

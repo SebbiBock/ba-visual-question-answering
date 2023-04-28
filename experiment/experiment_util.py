@@ -2,6 +2,9 @@ import os
 import pandas as pd
 
 from constants import *
+from PIL import Image
+from typing import Tuple
+
 
 
 def get_participant_group() -> int:
@@ -110,3 +113,30 @@ def save_demographic_data(
     f.write(f"Age: {age}\n")
     f.write(f"Gender: {gender}\n")
     f.close()
+
+
+def get_image_scale(img_path: str, disp_size: Tuple[int], factor: Tuple[float] = (0.75, 0.75)) -> Tuple[int]:
+    """
+        Returns the scale factor for the given image so that its longer side (either width or height)
+        is as long as a certain percentage / factor of the display size.
+
+        :param img_path: Path to the image that is to be scaled
+        :param disp_size: The current display size
+        :param factor: The factors by which to scale the image. Separated into dimensions.
+    """
+
+    # Open the image and get the size
+    img_size = Image.open(img_path).size
+
+    img_w, img_h = img_size
+    longer_idx = 0 if img_w >= img_h else 1
+
+    # Calculate scale factor so that the longer side is as long as the given percentage of the display size
+    # Example: img_size = (640, 480), disp_size = (1920, 1080), factor = 0.75
+    # Example: -> Desired size = 1440 -> scale factor = 1440 / 640 = 2.25
+    desired_size = int(disp_size[longer_idx] * factor[longer_idx])
+
+    return desired_size / img_size[longer_idx]
+
+
+
