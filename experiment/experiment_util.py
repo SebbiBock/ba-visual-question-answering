@@ -115,10 +115,10 @@ def save_demographic_data(
     f.close()
 
 
-def get_image_scale(img_path: str, disp_size: Tuple[int], factor: Tuple[float] = (0.75, 0.75)) -> Tuple[int]:
+def get_image_scale(img_path: str, disp_size: Tuple[int], factor: Tuple[float] = (0.7, 0.7)) -> Tuple[int]:
     """
-        Returns the scale factor for the given image so that its longer side (either width or height)
-        is as long as a certain percentage / factor of the display size.
+        Returns the scale factor for the given image so that its longer side (either width or height, but prefer
+        height over width in equal cases) is as long as a certain percentage / factor of the display size.
 
         :param img_path: Path to the image that is to be scaled
         :param disp_size: The current display size
@@ -129,7 +129,7 @@ def get_image_scale(img_path: str, disp_size: Tuple[int], factor: Tuple[float] =
     img_size = Image.open(img_path).size
 
     img_w, img_h = img_size
-    longer_idx = 0 if img_w >= img_h else 1
+    longer_idx = 0 if img_w > img_h else 1
 
     # Calculate scale factor so that the longer side is as long as the given percentage of the display size
     # Example: img_size = (640, 480), disp_size = (1920, 1080), factor = 0.75
