@@ -59,9 +59,7 @@ tracker = EyeTracker(disp, data_file=f"exp_output/{participant_string}/tracker.e
 
 # Create the logging file with the VP Code and the timestamp string
 log = Logfile(filename=os.path.join(output_dir, "logger"))
-log.write([
-"trial", "question_id", "time_on_image", "answer", "bb_image_x_min", "bb_image_x_max", "bb_image_y_min, bb_image_y_max"
-])
+log.write(["trial", "question_id", "time_on_image", "answer", "bb_image_x_min", "bb_image_x_max", "bb_image_y_min", "bb_image_y_max"])
 
 
 
