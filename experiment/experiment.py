@@ -14,7 +14,7 @@ from pygaze.liblog import Logfile
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from data import loader
 from textbox import TextInputBox
-from postprocessing import convert_edf_to_dataframe
+from postprocessing import convert_data_to_dataframe
 from experiment_util import *
 
 
@@ -284,4 +284,4 @@ disp.close()
 
 # If not in dummy mode: run the postprocessing script to convert the files
 if not DUMMYMODE:
-	convert_edf_to_dataframe(participant_string)
+	convert_data_to_dataframe(participant_string)

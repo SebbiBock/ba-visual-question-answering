@@ -11,7 +11,7 @@ import numpy as np
 
 from pathlib import Path
 from PIL import Image
-from typing import Dict, List, Union
+from typing import Dict, List, Tuple, Union
 
 
 # Path to the data, if it differs from the current repo
@@ -25,7 +25,8 @@ PATH_DICT = {
     "HUMAN_GAZE_PATH": DATA_PATH + "mhug/mhug/vqa-mhug_gaze.pickle",
     "HUMAN_ANSWERS_PATH": DATA_PATH + "mhug/mhug/vqa-mhug_answers.pickle",
     "BOUNDING_BOXES_PATH": DATA_PATH + "mhug/mhug/vqa-mhug_bboxes.pickle",
-    "GENERATED_HEATMAP_DIR_PATH": DATA_PATH + "mhug/deliverables/vqa-mhug/img-attmap/"
+    "GENERATED_HEATMAP_DIR_PATH": DATA_PATH + "mhug/deliverables/vqa-mhug/img-attmap/",
+    "EXPERIMENT_OUTPUT_PATH": "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/experiment/exp_output/"
 }
 
 
@@ -181,3 +182,56 @@ def load_human_answers() -> pd.DataFrame:
         answer_df = pickle.load(f).reset_index()
 
     return answer_df
+
+
+def load_participant_data(vp_code: Union[str, None] = None) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """
+        Loads in all the data for the given participant and returns them in a Tuple. If no participant string
+        is specified, the data for all participants is loaded, concatenated and returned.
+
+        :param vp_code: The VP-Code if one specific participant is to be loaded, otherwise, all are loaded.
+        :return: Tuple of (gaze_df, event_df, logger_df).
+    """
+
+    # Output directories to consider: ALl or the specified participant
+    output_dirs = [x for x in os.listdir(Path(PATH_DICT["EXPERIMENT_OUTPUT_PATH"]))]
+    if vp_code is not None:
+        output_dirs = [x for x in output_dirs if x[-6:] == vp_code]
+
+    # Loop through all given participant output directories and assemble list of dfs
+    gaze_list = []
+    event_list = []
+    logger_list = []
+
+    for part_dir in output_dirs:
+
+        # Assemble paths to needed files
+        path_to_gaze = os.path.join(PATH_DICT["EXPERIMENT_OUTPUT_PATH"], part_dir, "postprocessed", "gaze_df.pkl")
+        path_to_events = os.path.join(PATH_DICT["EXPERIMENT_OUTPUT_PATH"], part_dir, "postprocessed", "event_df.pkl")
+        path_to_logger = os.path.join(PATH_DICT["EXPERIMENT_OUTPUT_PATH"], part_dir, "postprocessed", "logger_df.pkl")
+
+        # Read in data
+        if os.path.isfile(path_to_gaze):
+            with open(path_to_gaze, "rb") as fg:
+                gaze_list.append(pickle.load(fg))
+
+        if os.path.isfile(path_to_events):
+            with open(path_to_events, "rb") as fe:
+                event_list.append(pickle.load(fe))
+
+        if os.path.isfile(path_to_logger):
+            with open(path_to_logger, "rb") as fl:
+                logger_list.append(pickle.load(fl))
+
+        # Add VP Code identifier to every df
+        for t_df in [gaze_list[-1], event_list[-1], logger_list[-1]]:
+            t_df["vp_code"] = vp_code
+
+    # Concat the pd.DataFrames to one, if necessary, and return the tuple
+    return (
+        pd.concat(gaze_list, ignore_index=True) if len(gaze_list) > 1 else gaze_list[0],
+        pd.concat(event_list, ignore_index=True) if len(event_list) > 1 else event_list[0],
+        pd.concat(logger_list, ignore_index=True) if len(logger_list) > 1 else logger_list[0]
+    )
+
+
