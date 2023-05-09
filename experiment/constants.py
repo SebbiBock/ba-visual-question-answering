@@ -16,7 +16,7 @@ DIR = os.path.dirname(__file__)
 # for 'pygame' if you experience trouble using PsychoPy
 DISPTYPE = 'psychopy'
 
-# the DISPSIZE is the monitor resolution, e.g. (1024,768)
+# The monitor resolution. LAB: (2560, 1440)
 DISPSIZE = (2560, 1440)
 
 # the SCREENSIZE is the physical screen size in centimeters. LAB: (59.5, 33.5).
@@ -39,7 +39,7 @@ BGC = (0, 0, 0)
 FGC = (255, 255, 255)
 
 # the TEXTSIZE determines the size of the text in the experiment
-TEXTSIZE = 20
+TEXTSIZE = 22
 
 # TIMING
 # the intertrial interval (ITI) is the minimal amount of time between the
@@ -66,16 +66,17 @@ DUMMYMODE = False
 ### INSTRUCTIONS ###
 
 INSTRUCTIONS = """
-Your task is that of Visual Question Answering:
+Instructions:
 \n
 You will be presented a series of Image-Question pairs and you have to answer the question based on the given image.\n
-First, you'll be shown the question that you can read for as long as you want.\n
+First, you'll be shown the question that you can read for as long as you want. Read and remember every question CAREFULLY. If you don't know what a certain word means, feel free to ask the experimenter.\n
 With the press of any key, the question will disappear, and the corresponding image to the question will appear.\n
 Between these steps, a calibration stimulus might appear that you simply need to fixate on.\n
 You can view the image for as long as you want.\n
-Once you want to answer the given question, simply press any key. This will lead you to an input field for your answer.\n
+Once you want to answer the given question, simply press any key. This will lead you to an input field for your answer.
+Enter your answer in english.\n
 Once you entered your answer, this repeats until every Image-Question pair has been completed.\n
-Now, three test trials will be run. Their results do not matter, this is just for you to get familiar with the experiment setup. \n
+Now, three test trials will be run so you can get familiar with the experiment setup. \n
 \n
 Ready? Press any key to start the test runs...
 """
@@ -83,7 +84,7 @@ Ready? Press any key to start the test runs...
 CALIBRATION_INSTRUCTIONS = """
 Now, we will calibrate you to the EyeTracker.\n
 If you wear glasses, make sure to remove them now and use your contact lenses instead.\n
-First, you will first need to fixate a stimulus (white circle) in the center of the screen.\n
+First, you will need to fixate a stimulus (white circle) in the center of the screen.\n
 Once you are ready, we will start the calibration. Then, multiple calibration stimuli will appear in the corners of the screen. Your
 task is to fixate on them as quickly as possible.\n
 If you have any questions beforehand, let us know.\n
