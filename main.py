@@ -41,7 +41,12 @@ if __name__ == '__main__':
     human_answers_df = loader.load_human_answers()
 
     # Encapsulate model and choose the proper attention layer for the forward hook registration
-    encapsulated_model = EncapsulateTransformerAttention(model, model_package.CONFIG["ATTENTION_LAYER_HOOK_NAME"])
+    encapsulated_model = EncapsulateTransformerAttention(
+        model,
+        model_package.CONFIG["ATTENTION_LAYER_HOOK_NAME"],
+        unsqueeze_attentions=model_package.CONFIG["UNSQUEEZE_ATTENTIONS"],
+        model_wrapper_used=model_package.CONFIG["MODEL_WRAPPER_USED"]
+    )
 
     # Encapsulated model for the gradients and activations of the target layers
     encapsulated_gradient_model = EncapsulateTransformerActivationAndGradients(model, [

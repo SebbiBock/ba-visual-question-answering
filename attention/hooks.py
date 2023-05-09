@@ -14,25 +14,29 @@ class EncapsulateTransformerAttention(object):
         forward hook in order to save attention activations at every of the provided layers.
     """
 
-    def __init__(self, model, attention_layer_name: str):
+    def __init__(self, model, attention_layer_name: str, model_wrapper_used=False, unsqueeze_attentions=False):
         """
             Constructor to encapsulate a given model according to the given attention layer name.
 
             :param model: The Transformer to encapsulate.
             :param attention_layer_name: String that a layer name needs to contain so that a forward hook is registered.
+            :param model_wrapper_used: Whether a model wrapper is used around the model (e.g. BEiT-3).
+            :param unsqueeze_attentions: Whether the attentions should be unsqueezed at dim=0.
         """
 
         self.model = model
+        named_modules = self.model.named_modules() if not model_wrapper_used else self.model.model.named_modules()
 
         # Save all handles to be able to release them
         self.handles = []
 
-        for name, module in self.model.named_modules():
+        for name, module in named_modules:
             if attention_layer_name in name:
                 self.handles.append(module.register_forward_hook(self.get_attention))
 
         # Saves the attentions
         self.attentions = []
+        self.unsqueeze_atts = unsqueeze_attentions
 
     def __call__(self, **kwargs) -> tuple:
         """
@@ -48,6 +52,11 @@ class EncapsulateTransformerAttention(object):
 
         with torch.no_grad():
             output = self.model(**kwargs)
+
+        # Unsqueeze attentions, if necessary
+        if self.unsqueeze_atts:
+            for idx, x in enumerate(self.attentions):
+                self.attentions[idx] = x.unsqueeze(dim=0)
 
         return output, self.attentions
 
@@ -73,7 +82,12 @@ class EncapsulateTransformerActivationAndGradients(object):
         to a forward hook in order to save activations and gradients at every of the provided layers.
     """
 
-    def __init__(self, model, target_layers: List[torch.nn.Sequential], transform: callable = None):
+    def __init__(
+            self,
+            model,
+            target_layers: List[torch.nn.Sequential],
+            transform: callable = None
+    ):
         """
             Constructor to encapsulate a given model according to the given layer name.
 

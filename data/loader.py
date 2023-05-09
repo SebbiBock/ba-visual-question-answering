@@ -21,6 +21,7 @@ DATA_PATH = "F:/Content/Bachelorarbeit/data/"
 PATH_DICT = {
     "IMAGE_DIR_PATH": DATA_PATH + "vqav2/images/val2014/",
     "ANNOTATION_PATH": DATA_PATH + "vqav2/annotations/v2_mscoco_val2014_annotations.json",
+    "ANNOTATION_TRAIN_PATH": DATA_PATH + "vqav2/annotations/v2_mscoco_train2014_annotations.json",
     "QUESTION_PATH": DATA_PATH + "vqav2/questions/v2_OpenEnded_mscoco_val2014_questions.json",
     "HUMAN_GAZE_PATH": DATA_PATH + "mhug/mhug/vqa-mhug_gaze.pickle",
     "HUMAN_ANSWERS_PATH": DATA_PATH + "mhug/mhug/vqa-mhug_answers.pickle",
@@ -30,11 +31,12 @@ PATH_DICT = {
 }
 
 
-def load_images(question_id_list: List[str]) -> List[Image.Image]:
+def load_images(question_id_list: List[str], return_paths: bool = False) -> List[Union[Image.Image, Path]]:
     """
         Loads and returns the images for the given question_ids as a List.
 
         :param question_id_list: List of question ids (VQAv2), each as string.
+        :param return_paths: Whether to return paths instead of loaded images. Defaults to False.
         :return: A List of loaded PIL.Images.
     """
 
@@ -49,15 +51,17 @@ def load_images(question_id_list: List[str]) -> List[Image.Image]:
     img_paths = [Path(PATH_DICT["IMAGE_DIR_PATH"] + img_filename) for img_filename in img_filenames]
 
     # Load and return images
-    return [Image.open(img_path) for img_path in img_paths]
+    return img_paths if return_paths else [Image.open(img_path) for img_path in img_paths]
 
 
-def load_questions(question_id_list: List[str]) -> List[str]:
+def load_questions(question_id_list: List[str], fuze_ids_and_questions: bool = False) \
+        -> Union[List[Tuple[str]], List[str]]:
     """
         Loads and returns the questions for the given question_ids as a List.
 
         :param question_id_list: List of question ids (VQAv2), each as string.
-        :return: A List of question strings.
+        :param fuze_ids_and_questions: Whether the questions are to be fuzed to their question ID.
+        :return: A List of question strings, optionally with their IDs fuzed as Tuples
     """
 
     # Sanity check: Enforce type
@@ -80,7 +84,7 @@ def load_questions(question_id_list: List[str]) -> List[str]:
     # Sanity check: No entry can be empty anymore
     assert "" not in question_list
 
-    return question_list
+    return list(zip(question_id_list, question_list)) if fuze_ids_and_questions else question_list
 
 
 def load_annotated_answers(question_id_list: List[str], single_answer: bool = True) -> Dict[str, Union[str, List[str]]]:
