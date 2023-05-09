@@ -19,6 +19,7 @@ __pycache__/
 .txt
 experiment/exp_output/
 outputs/
+models/transformers/beit3/pretrained/beit3_large_patch16_480_vqa.pth
 
 # C extensions
 *.so
