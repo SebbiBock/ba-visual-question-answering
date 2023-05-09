@@ -15,6 +15,7 @@ CONFIG = {
     "PROCESSOR_PATH":  "Salesforce/blip-vqa-base",
     "PATCH_SIZE": 16,
     "ATTENTION_LAYER_HOOK_NAME": "self_attn.dropout",   # Name of the attention layers to consider
+    "GRAD_LAYERS_HOOK_LIST": "[model.vision_model.encoder.layers[-2].layer_norm2]",  # List of layer names where the hooks for gradient and activation saving are to be saved
     "MODEL_WRAPPER_USED": False,    # Whether the model is wrapped in order to use a custom __call__ func for the hooks
     "UNSQUEEZE_ATTENTIONS": False,   # Whether the attentions should be unsqueezed after retrieval
 }

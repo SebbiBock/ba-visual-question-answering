@@ -15,6 +15,7 @@ CONFIG = {
     "PROCESSOR_PATH":  "dandelin/vilt-b32-finetuned-vqa",
     "PATCH_SIZE": 32,
     "ATTENTION_LAYER_HOOK_NAME": "attention.dropout",   # Name of the attention layers to consider
+    "GRAD_LAYERS_HOOK_LIST": "[model.vilt.encoder.layer[-2].layernorm_before]", # List of layer names where the hooks for gradient and activation saving are to be saved
     "MODEL_WRAPPER_USED": False,    # Whether the model is wrapped in order to use a custom __call__ func for the hooks
     "UNSQUEEZE_ATTENTIONS": False,   # Whether the attentions should be unsqueezed after retrieval
     "LOGITS_OUTPUT_LEN": 3129   # From their paper: ViLT-VQA has 3129 answer classes

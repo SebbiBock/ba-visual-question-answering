@@ -49,9 +49,9 @@ if __name__ == '__main__':
     )
 
     # Encapsulated model for the gradients and activations of the target layers
-    encapsulated_gradient_model = EncapsulateTransformerActivationAndGradients(model, [
-        model.vision_model.encoder.layers[-2].layer_norm2
-    ])
+    encapsulated_gradient_model = EncapsulateTransformerActivationAndGradients(model, eval(
+        model_package.CONFIG["GRAD_LAYERS_HOOK_LIST"]
+    ))
 
     # List of heatmaps to be generated
     grad_cam_heatmaps = []
