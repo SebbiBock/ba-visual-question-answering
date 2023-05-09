@@ -36,9 +36,13 @@ Also, make sure that the EyeTracker is not in their line of sight to the monitor
 2) Tell the participant what the calibration will look like: First, look at the center dot, once you're ready, press space. Points will appear
 in the corners of the screen, your task is to fixate on these points to the best of your ability.
 3) Validation: Same thing.
-4) If the results are not good, simply re-do the calibration.
+4) If the results are not good, simply re-do the calibration. The average validation error should be <= 0.6, the max validation error should be < 1.
 5) Noise correction: Simply focus on the stimulus.
 6) Done. Now, the experiment can start.
+
+#### Further stuff:
+- During the test trials, make sure to watch their given answers if they make any sense. If they don't, tell the participant what their task exactly is again.
+- If a participant forgot the question to the given image, tell them to simply write "idk" into the textbox.
 
 ### Add experiment data
 
