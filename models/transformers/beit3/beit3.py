@@ -30,6 +30,7 @@ CONFIG = {
     "MODEL": "beit3_large_patch16_480",
     "INPUT_SIZE": 480,
     "BATCH_SIZE": 16,
+    "PATCH_SIZE": 16,
     "SENTENCEPIECE_MODEL": Path(FILE_PATH + r"\pretrained\beit3.spm").__str__(),
     "FINETUNE": Path(FILE_PATH + r"\pretrained\beit3_large_patch16_480_vqa.pth").__str__(),
     "EVAL": True,
@@ -84,6 +85,34 @@ def preprocess(
     return dict(questions=[q[1] for q in question],
                 question_ids=[q[0] for q in question],
                 images=image)
+
+
+def get_textual_embedding_length(model_input: Dict) -> int:
+    """
+        This function calculates the textual embedding length for the given question. This means that the amount
+        of token (ids) that are passed into the Embedder of the Transformer are determined. If no attention is
+        provided on the questions, simply return 0.
+
+        :param model_input: The model input for the given question.
+        :return: The model input token amount, or 0 if no attention is used on question tokens.
+    """
+
+    # Return this setting, since the maximum token length for the question is fixed, and all questions are transformed
+    # to this length.
+    return CONFIG["NUM_MAX_BPE_TOKENS"]
+
+
+def image_patch_embedding_retrieval_fct(a: torch.Tensor, text_embed_length: int) -> Union[torch.Tensor, None]:
+    """
+        Callable function to reduce the attention matrix to only attention on the image embeddings, if attention is
+        deployed on the textual input. Since the order of visual and textual input is dependent on the model, this is
+        outsourced. If no attention is given on the text, simply return None.
+
+        :param a: The attention matrix for one attention block.
+        :param text_embed_length: The length of the tokens of the input question.
+    """
+
+    return a[:, :, :-text_embed_length, :-text_embed_length]
 
 
 class BEiT3WrapperForEncapsulators():

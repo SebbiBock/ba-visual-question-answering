@@ -7,7 +7,7 @@ import torch
 
 from PIL import Image
 from transformers import ViltProcessor, ViltForQuestionAnswering, ViltConfig
-from typing import Dict
+from typing import Dict, Union
 
 
 CONFIG = {
@@ -18,7 +18,7 @@ CONFIG = {
     "GRAD_LAYERS_HOOK_LIST": "[model.vilt.encoder.layer[-2].layernorm_before]", # List of layer names where the hooks for gradient and activation saving are to be saved
     "MODEL_WRAPPER_USED": False,    # Whether the model is wrapped in order to use a custom __call__ func for the hooks
     "UNSQUEEZE_ATTENTIONS": False,   # Whether the attentions should be unsqueezed after retrieval
-    "LOGITS_OUTPUT_LEN": 3129   # From their paper: ViLT-VQA has 3129 answer classes
+    "LOGITS_OUTPUT_LEN": 3129,  # From their paper: ViLT-VQA has 3129 answer classes
 }
 
 
@@ -109,3 +109,29 @@ def process_output(
 
     # Decode using the token index and return
     return model.config.id2label[idx]
+
+
+def get_textual_embedding_length(model_input: Dict) -> int:
+    """
+        This function calculates the textual embedding length for the given question. This means that the amount
+        of token (ids) that are passed into the Embedder of the Transformer are determined. If no attention is
+        provided on the questions, simply return 0.
+
+        :param model_input: The model input for the given question.
+        :return: The model input token amount, or 0 if no attention is used on question tokens.
+    """
+
+    return model_input["input_ids"].size(-1)
+
+
+def image_patch_embedding_retrieval_fct(a: torch.Tensor, text_embed_length: int) -> Union[torch.Tensor, None]:
+    """
+        Callable function to reduce the attention matrix to only attention on the image embeddings, if attention is
+        deployed on the textual input. Since the order of visual and textual input is dependent on the model, this is
+        outsourced. If no attention is given on the text, simply return None.
+
+        :param a: The attention matrix for one attention block.
+        :param text_embed_length: The length of the tokens of the input question.
+    """
+
+    return a[:, :, text_embed_length:, text_embed_length:]

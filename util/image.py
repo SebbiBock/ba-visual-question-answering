@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 
 from PIL import Image
+from typing import Dict, Tuple
 
 
 def resize_array_to_img(img: Image.Image, array: np.array):
@@ -38,3 +39,24 @@ def fuze_image_and_array(img: Image.Image, array: np.array) -> np.array:
     cam = cam / np.max(cam)
 
     return np.uint8(255 * cam)
+
+
+def get_amount_of_image_patches(model_input: Dict, patch_size: int) -> Tuple[int, int]:
+    """
+        In Vision Transformers, the input image is divided into patches that have fixed sizes (the patch_size), and
+        attention is not given for every pixel, but rather for each patch of size (patch_size x patch_size). Dependent
+        on the input image, the amount of image patches might change if not all input images are transformed to the
+        same size. Then, we need to get the amount of image patches that the image is divided in, e.g. necessary in
+        determining the size of the heatmaps in attention rollout, since we have the attention given not for every
+        pixel in the image, but rather for each pixel.
+
+        :param model_input: The model input, containing the pixel_values for the preprocessed image
+        :param patch_size: The patch size of the given model (one value, since patches are quadratic)
+        :return: Tuple (amount_patches_h, amount_patches_w) containing the amount of patches in each dimension for the image.
+    """
+
+    # Compute the amount of image patches in width and height dimension: Divide image size by patch size
+    amount_patches_w = int(model_input["pixel_values"].size(-1) / patch_size)
+    amount_patches_h = int(model_input["pixel_values"].size(-2) / patch_size)
+
+    return amount_patches_h, amount_patches_w

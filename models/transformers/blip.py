@@ -7,7 +7,7 @@ import torch
 
 from PIL import Image
 from transformers import BlipProcessor, BlipForQuestionAnswering
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 
 CONFIG = {
@@ -117,3 +117,29 @@ def process_output(
 
         # Decode the given logits tensor and return the result
         return processor.decode(logits_tensor[0], skip_special_tokens=True)
+
+
+def get_textual_embedding_length(model_input: Dict) -> int:
+    """
+        This function calculates the textual embedding length for the given question. This means that the amount
+        of token (ids) that are passed into the Embedder of the Transformer are determined. If no attention is
+        provided on the questions, simply return 0.
+
+        :param model_input: The model input for the given question.
+        :return: The model input token amount, or 0 if no attention is used on question tokens.
+    """
+
+    return 0
+
+
+def image_patch_embedding_retrieval_fct(a: torch.Tensor, text_embed_length: int) -> Union[torch.Tensor, None]:
+    """
+        Callable function to reduce the attention matrix to only attention on the image embeddings, if attention is
+        deployed on the textual input. Since the order of visual and textual input is dependent on the model, this is
+        outsourced. If no attention is given on the text, simply return None.
+
+        :param a: The attention matrix for one attention block.
+        :param text_embed_length: The length of the tokens of the input question.
+    """
+
+    return None

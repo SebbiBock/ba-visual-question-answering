@@ -10,7 +10,7 @@ from attention.attention_rollout import attention_rollout
 from attention.grad_cam import compute_grad_cam_for_layers
 from attention.hooks import EncapsulateTransformerAttention, EncapsulateTransformerActivationAndGradients
 from plotting.plot_comparison import plot_overview_for_question
-from util.image import fuze_image_and_array, resize_array_to_img
+from util.image import fuze_image_and_array, resize_array_to_img, get_amount_of_image_patches
 
 
 if __name__ == '__main__':
@@ -106,8 +106,19 @@ if __name__ == '__main__':
             **model_input
         ))
 
+        # Get the textual embedding length for the given model
+        text_embedding_len = model_package.get_textual_embedding_length(model_input)
+
+        # Get the amount of patches in each dimension for the given image + model
+        amount_image_patches = get_amount_of_image_patches(model_input, model_package.CONFIG["PATCH_SIZE"])
+
         # Get heatmap(s) for model attention
-        rollout_attention_map = attention_rollout(attentions, head_fusion="max")
+        rollout_attention_map = attention_rollout(
+            atts=attentions,
+            image_patch_embedding_retrieval_fct=model_package.image_patch_embedding_retrieval_fct if text_embedding_len > 0 else None,
+            text_embed_length=text_embedding_len,
+            head_fusion="max"
+        )
 
         # Resize heatmap and fuze with image
         resized_heatmap = resize_array_to_img(image, rollout_attention_map)
