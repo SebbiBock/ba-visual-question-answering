@@ -3,6 +3,7 @@ import numpy as np
 
 import models.transformers.vilt as vilt
 import models.transformers.blip as blip
+import models.transformers.beit3.beit3 as beit3
 import data.loader as loader
 import util.data_util as dutil
 
@@ -10,22 +11,24 @@ from attention.attention_rollout import attention_rollout
 from attention.grad_cam import compute_grad_cam_for_layers
 from attention.hooks import EncapsulateTransformerAttention, EncapsulateTransformerActivationAndGradients
 from plotting.plot_comparison import plot_overview_for_question
-from util.image import fuze_image_and_array, resize_array_to_img, get_amount_of_image_patches
+from util.image import fuze_image_and_array, resize_array_to_img
 
 
 if __name__ == '__main__':
 
     # Choose VQAv2 question IDs as strings
-    # question_ids = ["109945002"]
+    question_ids = ["109945002"]
 
+    """
     # Randomly chosen 20 ones
     question_ids = ['566550013', '491061001', '214224017', '565273001', '368576000',
                     '312552002', '67342003', '174070000', '77891000', '536403008',
                     '489733005', '497568003', '445233002', '342318002', '213592002',
                     '217517001', '523527002', '384531001', '568972001', '109945002']
+    """
 
     # Choose model
-    model_package = blip
+    model_package = beit3
 
     # Create output path, if it doesn't exist
     dutil.construct_output_folder()
@@ -34,9 +37,13 @@ if __name__ == '__main__':
     processor = model_package.load_processor()
     model = model_package.load_model()
 
-    # Load in the necessary data
-    images = loader.load_images(question_ids)
-    questions = loader.load_questions(question_ids)
+    # Load in the necessary data.
+    # Note: Paths should be returned and questions should be fuzed to their ID only when using the BEiT-3 model so far.
+    # Therefore, I use the "MODEL_WRAPPER_USED" flag to determine on how to set these options, although this is not
+    # the intended usage of this flags. If more models are added that use model wrappers, this needs to be changed.
+    images_for_eval = loader.load_images(question_ids, return_paths=model_package.CONFIG["MODEL_WRAPPER_USED"])
+    images_for_plotting = loader.load_images(question_ids)
+    questions = loader.load_questions(question_ids, fuze_ids_and_questions=model_package.CONFIG["MODEL_WRAPPER_USED"])
     annotated_answers = loader.load_annotated_answers(question_ids, single_answer=True)
     human_answers_df = loader.load_human_answers()
 
@@ -60,11 +67,12 @@ if __name__ == '__main__':
     model_answers = []
     human_answers = []
 
+
     # For every image-question pair, get gradients and activations
-    for image, question, q_id in zip(images, questions, question_ids):
+    for image_eval, image_plot, question, q_id in zip(images_for_eval, images_for_plotting, questions, question_ids):
 
         # Preprocess the data for the model
-        model_input = model_package.preprocess(processor, question, annotated_answers[q_id], image)
+        model_input = model_package.preprocess(processor, question, annotated_answers[q_id], image_eval)
 
         # Inference: Get activations and gradients w.r.t. the predicted output class
         encapsulated_gradient_model(**model_input)
@@ -75,13 +83,13 @@ if __name__ == '__main__':
         )[0]
 
         # Resize to image and fuze
-        resized_grad_heatmap = resize_array_to_img(image, grad_cam_heatmap)
-        grad_cam_heatmaps.append(fuze_image_and_array(image, resized_grad_heatmap))
+        resized_grad_heatmap = resize_array_to_img(image_plot, grad_cam_heatmap)
+        grad_cam_heatmaps.append(fuze_image_and_array(image_plot, resized_grad_heatmap))
 
         # Get mean human heatmap, resize and fuze
         human_heatmap = loader.load_human_heatmaps(q_id, reduction=np.mean)
-        resized_human_heatmap = resize_array_to_img(image, human_heatmap)
-        human_heatmaps.append(fuze_image_and_array(image, resized_human_heatmap))
+        resized_human_heatmap = resize_array_to_img(image_plot, human_heatmap)
+        human_heatmaps.append(fuze_image_and_array(image_plot, resized_human_heatmap))
 
         # Get human answers
         human_answers.append(dutil.get_answers_for_question(human_answers_df, q_id))
@@ -90,10 +98,10 @@ if __name__ == '__main__':
     encapsulated_gradient_model.release()
 
     # For every image-question pair, get attentions
-    for image, question, q_id in zip(images, questions, question_ids):
+    for image_eval, image_plot, question, q_id in zip(images_for_eval, images_for_plotting, questions, question_ids):
 
         # Preprocess the data for the model
-        model_input = model_package.preprocess(processor, question, annotated_answers[q_id], image)
+        model_input = model_package.preprocess(processor, question, annotated_answers[q_id], image_eval)
 
         # Inference / Forward: Get output and attentions from the encapsulated model
         output, attentions = encapsulated_model(**model_input)
@@ -110,19 +118,20 @@ if __name__ == '__main__':
         text_embedding_len = model_package.get_textual_embedding_length(model_input)
 
         # Get the amount of patches in each dimension for the given image + model
-        amount_image_patches = get_amount_of_image_patches(model_input, model_package.CONFIG["PATCH_SIZE"])
+        amount_image_patches = model_package.get_amount_of_image_patches(model_input)
 
         # Get heatmap(s) for model attention
         rollout_attention_map = attention_rollout(
             atts=attentions,
             image_patch_embedding_retrieval_fct=model_package.image_patch_embedding_retrieval_fct if text_embedding_len > 0 else None,
             text_embed_length=text_embedding_len,
+            amount_image_patches=amount_image_patches,
             head_fusion="max"
         )
 
         # Resize heatmap and fuze with image
-        resized_heatmap = resize_array_to_img(image, rollout_attention_map)
-        att_heatmaps.append(fuze_image_and_array(image, resized_heatmap))
+        resized_heatmap = resize_array_to_img(image_plot, rollout_attention_map)
+        att_heatmaps.append(fuze_image_and_array(image_plot, resized_heatmap))
 
     # Release hooks
     encapsulated_model.release()

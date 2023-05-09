@@ -7,7 +7,7 @@ import torch
 
 from PIL import Image
 from transformers import ViltProcessor, ViltForQuestionAnswering, ViltConfig
-from typing import Dict, Union
+from typing import Dict, Tuple, Union
 
 
 CONFIG = {
@@ -85,8 +85,6 @@ def preprocess(processor, question: str, answer: str, image: Image.Image) -> Dic
 def process_output(
     model: torch.nn.Module,
     processor: ViltProcessor,
-    image_embeds: torch.FloatTensor,
-    input_ids: torch.LongTensor,
     attention_mask=None,
     **kwargs
 ) -> str:
@@ -135,3 +133,26 @@ def image_patch_embedding_retrieval_fct(a: torch.Tensor, text_embed_length: int)
     """
 
     return a[:, :, text_embed_length:, text_embed_length:]
+
+
+def get_amount_of_image_patches(model_input: Dict) -> Tuple[int, int]:
+    """
+        In Vision Transformers, the input image is divided into patches that have fixed sizes (the patch_size), and
+        attention is not given for every pixel, but rather for each patch of size (patch_size x patch_size). Dependent
+        on the input image, the amount of image patches might change if not all input images are transformed to the
+        same size. Then, we need to get the amount of image patches that the image is divided in, e.g. necessary in
+        determining the size of the heatmaps in attention rollout, since we have the attention given not for every
+        pixel in the image, but rather for each pixel.
+
+        :param model_input: The model input, containing the pixel_values for the preprocessed image
+        :return: Tuple (amount_patches_h, amount_patches_w) containing the amount of patches in each dimension for the image.
+    """
+
+    # The patch size of the given model (one value, since patches are quadratic)
+    patch_size = CONFIG["PATCH_SIZE"]
+
+    # Compute the amount of image patches in width and height dimension: Divide image size by patch size
+    amount_patches_w = int(model_input["pixel_values"].size(-1) / patch_size)
+    amount_patches_h = int(model_input["pixel_values"].size(-2) / patch_size)
+
+    return amount_patches_h, amount_patches_w

@@ -42,7 +42,7 @@ CONFIG = {
     "EVAL_BATCH_SIZE": None,
 
     "ATTENTION_LAYER_HOOK_NAME": "self_attn.dropout_module",    # Name of the attention layers to consider
-    "GRAD_LAYERS_HOOK_LIST": "[model.vilt.encoder.layer[-2].layernorm_before]", # List of layer names where the hooks for gradient and activation saving are to be saved
+    "GRAD_LAYERS_HOOK_LIST": "[model.model.beit3.encoder.layers[-2].self_attn_layer_norm.A]", # List of layer names where the hooks for gradient and activation saving are to be saved
     "MODEL_WRAPPER_USED": True,  # Whether the model is wrapped in order to use a custom __call__ func for the hooks
     "UNSQUEEZE_ATTENTIONS": True    # Whether the attentions should be unsqueezed after retrieval
 }
@@ -84,7 +84,28 @@ def preprocess(
 
     return dict(questions=[q[1] for q in question],
                 question_ids=[q[0] for q in question],
-                images=image)
+                images=[image])
+
+
+def process_output(
+    model: torch.nn.Module,
+    processor,
+    **kwargs
+) -> str:
+    """
+        Method to process the output further. Since the forward method of BLIP is usually only used for training,
+        it does not return the output token. To fix this, the additional steps in generation for the BLIP model
+        are executed with given model, input and image_embeds (from the output). The final logits result is then
+        decoded using the processor to get the final model answer token. The **kwargs are necessary to simply be
+        able to plug all input and output into this function across all models.
+
+        :param model: The model to use to further process the output, if necessary
+        :param processor: The processor to use to decode logits into tokens. For BEiT-3, we have no processor
+        :param kwargs: To be able to simply pass all arguments from input and output, irrelevant ones are ignored
+        :return: Final model answer token to the given question
+    """
+
+    return kwargs["answer"]
 
 
 def get_textual_embedding_length(model_input: Dict) -> int:
@@ -113,6 +134,29 @@ def image_patch_embedding_retrieval_fct(a: torch.Tensor, text_embed_length: int)
     """
 
     return a[:, :, :-text_embed_length, :-text_embed_length]
+
+
+def get_amount_of_image_patches(model_input: Dict) -> Tuple[int, int]:
+    """
+        In Vision Transformers, the input image is divided into patches that have fixed sizes (the patch_size), and
+        attention is not given for every pixel, but rather for each patch of size (patch_size x patch_size). Dependent
+        on the input image, the amount of image patches might change if not all input images are transformed to the
+        same size. Then, we need to get the amount of image patches that the image is divided in, e.g. necessary in
+        determining the size of the heatmaps in attention rollout, since we have the attention given not for every
+        pixel in the image, but rather for each pixel.
+
+        :param model_input: The model input, containing the pixel_values for the preprocessed image
+        :return: Tuple (amount_patches_h, amount_patches_w) containing the amount of patches in each dimension for the image.
+    """
+
+    # The patch size of the given model (one value, since patches are quadratic)
+    patch_size = CONFIG["PATCH_SIZE"]
+
+    # Compute the amount of image patches in width and height dimension: Divide image size by patch size
+    amount_patches_w = int(CONFIG["INPUT_SIZE"] / patch_size)
+    amount_patches_h = int(CONFIG["INPUT_SIZE"] / patch_size)
+
+    return amount_patches_h, amount_patches_w
 
 
 class BEiT3WrapperForEncapsulators():
@@ -154,4 +198,6 @@ class BEiT3WrapperForEncapsulators():
 
         # Call the evaluate function and return the output
         result, _ = evaluate(data_loader_test, self.model, self.device, self.task_handler)
-        return result
+
+        # Index result, since a List is returned, but we only use single inputs at once
+        return result[0]
