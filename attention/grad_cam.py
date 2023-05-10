@@ -7,10 +7,10 @@ import torch
 
 import numpy as np
 
-from typing import List
+from typing import List, Tuple, Union
 
 
-def transformer_reshape_transform(tensor, height=24, width=24) -> torch.Tensor:
+def transformer_reshape_transform(tensor, height, width) -> torch.Tensor:
     """
         Reshape the activation and gradient tensors to match that of CNN networks. Idea taken from
         https://jacobgil.github.io/pytorch-gradcam-book/vision_transformers.html: "In ViT the output
@@ -18,13 +18,16 @@ def transformer_reshape_transform(tensor, height=24, width=24) -> torch.Tensor:
         represents the class token, and the rest represent the 14x14 patches in the image. We can
         treat the last 196 elements as a 14x14 spatial image, with 192 channels".
 
+        Same principle as in attention rollout!
+
         :param tensor: Tensor of activations or gradients from a vision transformer
-        :param height: Height of the patches in the image
-        :param width: Width of the patches in the image
+        :param height: Amount of image patches in height
+        :param width: Amount of image patches in width
         :return: Reshaped torch.Tensor
     """
 
     # Reshape the result to the given height and width of image patches and dis-regard the class token
+    # Shape should be: (batch_size, amount_patches_h, amount_patches_w, channels)
     result = tensor[:, 1:, :].reshape(tensor.size(0), height, width, tensor.size(2))
 
     # Bring channels to first dimensions to get tensor shape equal to that in CNNs.
@@ -35,6 +38,9 @@ def transformer_reshape_transform(tensor, height=24, width=24) -> torch.Tensor:
 def compute_grad_cam_for_layers(
     gradients: List[torch.Tensor],
     activations: List[torch.Tensor],
+    text_embed_length: int,
+    amount_image_patches: Tuple[int, int],
+    image_patch_embedding_retrieval_fct: Union[callable, None],
     reshape_transform: callable = transformer_reshape_transform
 ) -> List[np.array]:
     """
@@ -51,6 +57,9 @@ def compute_grad_cam_for_layers(
 
         :param gradients: List of torch.Tensors, representing the gradients for loss.backward() at every hooked layer
         :param activations: List of torch.Tensors, representing the activations at every hooked layer
+        :param text_embed_length: Length of the textual embedding of the question, so how many tokens are used.
+        :param amount_image_patches: The amount of image patches for the given model and image in height and width dimension
+        :param image_patch_embedding_retrieval_fct: Callable function to reduce the attention matrix to only attention on the image embeddings, if attention is deployed on the textual input. Since the order of visual and textual input is dependent on the model, this is outsourced.
         :param reshape_transform: Callable function that transform the gradients and activations to proper shape.
         :return: Grad-CAM map for every hooked layer w.r.t the given loss of the chosen class
     """
@@ -64,10 +73,15 @@ def compute_grad_cam_for_layers(
         reshaped_grad = grad.detach().cpu()
         reshaped_act = act.detach().cpu()
 
+        # Remove entries of textual embeddings to retrieve pure image activations and gradients
+        if image_patch_embedding_retrieval_fct is not None:
+            reshaped_grad = image_patch_embedding_retrieval_fct(reshaped_grad, text_embed_length)
+            reshaped_act = image_patch_embedding_retrieval_fct(reshaped_act, text_embed_length)
+
         # Reshape gradient and activations to proper form (similar to CNN), if the input stems from a ViT
         if reshape_transform is not None:
-            reshaped_grad = reshape_transform(grad)
-            reshaped_act = reshape_transform(act)
+            reshaped_grad = reshape_transform(reshaped_grad, amount_image_patches[0], amount_image_patches[1])
+            reshaped_act = reshape_transform(reshaped_act, amount_image_patches[0], amount_image_patches[1])
 
         # Pool the gradients across the channels
         pooled_gradients = torch.mean(reshaped_grad, dim=[0, 2, 3])

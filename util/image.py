@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 
 from PIL import Image
+from typing import Dict, Tuple
 
 
 def resize_array_to_img(img: Image.Image, array: np.array):
