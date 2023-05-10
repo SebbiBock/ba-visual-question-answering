@@ -145,6 +145,20 @@ def image_patch_embedding_retrieval_fct(a: torch.Tensor, text_embed_length: int)
     return None
 
 
+def image_patch_embedding_retrieval_fct_for_gradients(grad: torch.Tensor, text_embed_length: int) -> Union[torch.Tensor, None]:
+    """
+        Callable function to reduce the gradient or activation map to only values on the image embeddings, if the
+        textual input is contained in these matrices. Since the order of visual and textual input is dependent on
+        the model, this is outsourced. If no activations or gradients are given on the text, simply return None.
+
+        :param grad: The gradient or activation matrix for one layer
+        :param text_embed_length: The length of the tokens of the input question.
+        :return: Gradient or activation matrix only on image patches
+    """
+
+    return None
+
+
 def get_amount_of_image_patches(model_input: Dict) -> Tuple[int, int]:
     """
         In Vision Transformers, the input image is divided into patches that have fixed sizes (the patch_size), and
