@@ -1,4 +1,4 @@
-import numpy as np
+from tqdm import tqdm
 
 import models.transformers.vilt as vilt
 import models.transformers.blip as blip
@@ -13,8 +13,11 @@ from attention.hooks import EncapsulateTransformerAttention, EncapsulateTransfor
 
 def main():
 
-    # Choose VQAv2 question IDs as strings
-    question_ids = ["109945002"]
+    # Questions IDs of the test images taken
+    question_ids = ["104829001", "109945002", "111416001", "270386001", "392228001",
+                    "395665001", "395801001", "469174001", "472228001", "472478001",
+                    "106351001", "109894001", "270136001", "271076001", "394517001",
+                    "396997001", "469067001", "470882001", "472246001"]
 
     """
     # Randomly chosen 20 ones
@@ -25,7 +28,7 @@ def main():
     """
 
     # Choose model
-    model_package = vilt
+    model_package = blip
 
     # Create output path, if it doesn't exist
     dutil.construct_output_folder()
@@ -62,7 +65,9 @@ def main():
     model_answers = []
 
     # For every image-question pair, get gradients and activations
-    for image_eval, image_plot, question, q_id in zip(images_for_eval, images_for_plotting, questions, question_ids):
+    for image_eval, image_plot, question, q_id in zip(
+            tqdm(images_for_eval, ascii=True, desc="GRAD-CAM:"), images_for_plotting, questions, question_ids
+    ):
 
         # Preprocess the data for the model
         model_input = model_package.preprocess(processor, question, annotated_answers[q_id], image_eval)
@@ -90,7 +95,9 @@ def main():
     encapsulated_gradient_model.release()
 
     # For every image-question pair, get attentions
-    for image_eval, image_plot, question, q_id in zip(images_for_eval, images_for_plotting, questions, question_ids):
+    for image_eval, image_plot, question, q_id in zip(
+            tqdm(images_for_eval, ascii=True, desc="ATT-ROLLOUT:"), images_for_plotting, questions, question_ids
+    ):
 
         # Preprocess the data for the model
         model_input = model_package.preprocess(processor, question, annotated_answers[q_id], image_eval)
