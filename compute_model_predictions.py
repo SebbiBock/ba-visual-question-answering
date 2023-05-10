@@ -25,7 +25,7 @@ def main():
     """
 
     # Choose model
-    model_package = beit3
+    model_package = vilt
 
     # Create output path, if it doesn't exist
     dutil.construct_output_folder()
@@ -70,9 +70,19 @@ def main():
         # Inference: Get activations and gradients w.r.t. the predicted output class
         encapsulated_gradient_model(**model_input)
 
+        # Get the textual embedding length for the given model
+        text_embedding_len = model_package.get_textual_embedding_length(model_input)
+
+        # Get the amount of patches in each dimension for the given image + model
+        amount_image_patches = model_package.get_amount_of_image_patches(model_input)
+
         # For now, we only take the first one of the registered layers (only really one necessary)
         grad_cam_heatmap = compute_grad_cam_for_layers(
-            encapsulated_gradient_model.gradients, encapsulated_gradient_model.activations
+            encapsulated_gradient_model.gradients,
+            encapsulated_gradient_model.activations,
+            text_embed_length=text_embedding_len,
+            amount_image_patches=amount_image_patches,
+            image_patch_embedding_retrieval_fct=model_package.image_patch_embedding_retrieval_fct_for_gradients if text_embedding_len > 0 else None,
         )[0]
         grad_cam_heatmaps.append(grad_cam_heatmap)
 
