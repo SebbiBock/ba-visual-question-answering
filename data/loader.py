@@ -13,6 +13,8 @@ from pathlib import Path
 from PIL import Image
 from typing import Dict, List, Tuple, Union
 
+import util.data_util as dutil
+
 
 # Path to the data, if it differs from the current repo
 DATA_PATH = "F:/Content/Bachelorarbeit/data/"
@@ -238,4 +240,28 @@ def load_participant_data(vp_code: Union[str, None] = None) -> Tuple[pd.DataFram
         pd.concat(logger_list, ignore_index=True) if len(logger_list) > 1 else logger_list[0]
     )
 
+
+def load_model_results(model_str: str) -> Tuple[Dict[str, np.array], Dict[str, np.array], pd.DataFrame]:
+    """
+
+    """
+
+    # Get model path
+    paths = dutil.create_model_output_folders(model_str, fail_on_non_existent=True)
+
+    # Construct dicts for the heatmaps
+    heatmap_types = ["att_rollout", "grad_cam"]
+    return_dicts = [{}, {}]
+
+    for htype, return_dict in zip(heatmap_types, return_dicts):
+        for heatmap_name in os.listdir(paths[htype]):
+            return_dict.update({
+                heatmap_name.split(".")[0]: np.load(os.path.join(paths[htype], heatmap_name))
+            })
+
+    # Load model answers
+    with open(os.path.join(paths["predictions"], "answers.pkl"), "rb") as f:
+        model_answer_df = pickle.load(f)
+
+    return return_dicts[0], return_dicts[1], model_answer_df
 

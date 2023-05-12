@@ -41,11 +41,12 @@ def get_output_path() -> Path:
     return Path(os.path.join(os.getcwd(), "outputs"))
 
 
-def create_model_output_folders(model_str: str) -> Dict[str, str]:
+def create_model_output_folders(model_str: str, fail_on_non_existent: bool = False) -> Dict[str, str]:
     """
         Creates output directories for the given model and return the paths as a dictionary.
 
         :param model_str: String identifier for the given model.
+        :param fail_on_non_existent: Whether to raise an exception if the given model string does not exist.
         :return: Dictionary with the given output paths
     """
 
@@ -60,6 +61,8 @@ def create_model_output_folders(model_str: str) -> Dict[str, str]:
     # Specific model output path
     model_output_path = os.path.join(general_model_path, model_str)
     if not os.path.isdir(model_output_path):
+        if fail_on_non_existent:
+            raise FileNotFoundError(f"No model output with the name {model_str} could be found.")
         os.mkdir(model_output_path)
 
     # Construct output folders
