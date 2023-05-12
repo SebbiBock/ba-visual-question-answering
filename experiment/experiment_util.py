@@ -115,7 +115,7 @@ def save_demographic_data(
     f.close()
 
 
-def get_image_scale(img_path: str, disp_size: Tuple[int], factor: Tuple[float] = (0.75, 0.8)) -> Tuple[int]:
+def get_image_scale(img_path: str, disp_size: Tuple[int], factor: Tuple[float] = (0.75, 0.85)) -> Tuple[int]:
     """
         Returns the scale factor for the given image so that its longer side (either width or height, but prefer
         height over width in equal cases) is as long as a certain percentage / factor of the display size.
@@ -142,7 +142,7 @@ def get_image_scale(img_path: str, disp_size: Tuple[int], factor: Tuple[float] =
 
     # Check the smaller side: If the smaller side would be out of bounds with safety margin, use the factor for
     # the smaller size instead. This only happens for near-quadratic images where the width is slightly longer.
-    if img_size[shorter_idx] * scale_factor >= disp_size[shorter_idx] * 0.9:
+    if img_size[shorter_idx] * scale_factor >= disp_size[shorter_idx] * 0.95:
         print("Hey")
         return int(disp_size[shorter_idx] * factor[shorter_idx]) / img_size[shorter_idx]
 
