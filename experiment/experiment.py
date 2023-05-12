@@ -30,6 +30,7 @@ center_screen_y = int(scr.dispsize[1] / 2)
 
 # Create the keyboard for inputs
 kb = Keyboard()
+CONTINUE_KEYS = ["return"]
 
 # Get the group for the given participant
 participant_group = get_participant_group()
@@ -112,7 +113,7 @@ disp.fill(scr)
 disp.show()
 
 # wait for a keypress
-kb.get_key(keylist=None, timeout=None, flush=True)
+kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
 
 # calibrate the eye tracker
 tracker.calibrate()
@@ -127,7 +128,7 @@ disp.fill(scr)
 disp.show()
 
 # wait for a keypress
-kb.get_key(keylist=None, timeout=None, flush=True)
+kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
 
 
 
@@ -141,7 +142,7 @@ for test_question, test_image in zip(test_questions, test_images):
 
 	# Present question and let the participant view it as long as they want
 	scr.draw_text(text=f"Question: {test_question}", fontsize=TEXTSIZE)
-	scr.draw_text(text="Press any key to view the image...", fontsize=TEXTSIZE - 1, pos=(center_screen_x, center_screen_y + 250), centre=True)
+	scr.draw_text(text="Press Enter to view the image...", fontsize=TEXTSIZE - 1, pos=(center_screen_x, center_screen_y + 250), centre=True)
 	disp.fill(scr)
 	disp.show()
 
@@ -158,7 +159,7 @@ for test_question, test_image in zip(test_questions, test_images):
 	disp.show()
 
 	# Wait for the participant to continue
-	kb.get_key(keylist=None, timeout=None, flush=True)
+	kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
 
 	# Create input box for the answer
 	test_answer = TextInputBox(
@@ -175,7 +176,7 @@ disp.fill(scr)
 disp.show()
 
 # wait for a keypress
-kb.get_key(keylist=None, timeout=None, flush=True)
+kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
 
 
 
@@ -188,12 +189,12 @@ for trial_nr, (image, question, question_id) in enumerate(zip(images, questions,
 
 	# Present question and let the participant view it as long as they want
 	scr.draw_text(text=f"Question: {question}", fontsize=TEXTSIZE)
-	scr.draw_text(text="Press any key to view the image...", fontsize=TEXTSIZE - 1, pos=(center_screen_x, center_screen_y + 250), centre=True)
+	scr.draw_text(text="Press Enter to view the image...", fontsize=TEXTSIZE - 1, pos=(center_screen_x, center_screen_y + 250), centre=True)
 	disp.fill(scr)
 	disp.show()
 
 	# Continue with any button press and clear the screen afterwards
-	kb.get_key(keylist=None, timeout=None, flush=True)
+	kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
 	scr.clear()
 
 	# Get image scale
@@ -228,7 +229,7 @@ for trial_nr, (image, question, question_id) in enumerate(zip(images, questions,
 
 
 	# Wait for the participant to continue
-	kb.get_key(keylist=None, timeout=None, flush=True)
+	kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
 
 	# stop recording
 	tracker.log("TRIALEND %d" % trial_nr)
@@ -277,7 +278,7 @@ disp.fill(scr)
 disp.show()
 
 # wait for a keypress
-kb.get_key(keylist=None, timeout=None, flush=True)
+kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
 
 # close the Display
 disp.close()

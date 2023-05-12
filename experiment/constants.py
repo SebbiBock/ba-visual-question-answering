@@ -78,7 +78,7 @@ Enter your answer in english.\n
 Once you entered your answer, this repeats until every Image-Question pair has been completed.\n
 Now, three test trials will be run so you can get familiar with the experiment setup. \n
 \n
-Ready? Press any key to start the test runs...
+Ready? Press Enter to start the test runs...
 """
 
 CALIBRATION_INSTRUCTIONS = """
@@ -89,7 +89,7 @@ Once you are ready, we will start the calibration. Then, multiple calibration st
 task is to fixate on them as quickly as possible.\n
 If you have any questions beforehand, let us know.\n
 \n
-Press any key to continue...
+Press Enter to continue...
 """
 
 VP_INSTRUCTIONS = """
@@ -106,10 +106,10 @@ If you still have any questions to ask, feel free to ask now.\n
 Otherwise, the real experiment can begin.\n
 Please make sure that your answers do not contain any typos!\n
 \n
-Press any key to start the experiment...
+Press Enter to start the experiment...
 """
 
 EXIT_TEXT = """
 This is the end of the experiment. Thank you for participating!\n
-Press any key to stop the experiment.\n
+Press Enter to stop the experiment.\n
 """
