@@ -24,6 +24,51 @@ def get_answers_for_question(answer_df: pd.DataFrame, question_id: str) -> List[
     return answer_df[answer_df["question_id"] == question_id]["answer"].values.tolist()
 
 
+def get_fixation_df(event_df: pd.DataFrame, screen_w=2560, screen_h=1440, epsilon_px=25) -> pd.DataFrame:
+    """
+        Get all fixations from the given pd.DataFrame containing all events. More specifically, all fixations are extracted
+        and filtered: The first fixation(s) are removed if they are in proximity to the screen center, since they presumably
+        exist due to the fixation on the drift correlation stimuli, which is in the center of the screen.
+
+        :param event_df: The pd.DataFrame containing all events
+        :param screen_w: The width of the screen used in the experiment
+        :param screen_h: The height of the screen used in the experiment
+        :param epsilon_px: The allowed difference in pixels to the screen center for a fixation to be considered in the center
+        :return: A pd.DataFrame containing only the valid fixations
+    """
+
+    # Get all fixations
+    fixations = event_df[event_df["event"] == "fixation"]
+
+    # Assemble list of indices to drop
+    drop_indices = []
+
+    # Separate data for every trial
+    for trial in fixations["trial_id"].value_counts().index:
+
+        # Get slice and sort by time (ascending) to get chronological fixations
+        trial_fix = fixations[fixations["trial_id"] == trial].sort_values(by=["start"], ascending=True)
+
+        # Get image center in screen(!) coordinates
+        center_x, center_y = int(screen_w / 2), int(screen_h / 2)
+
+        # Check for the first entry in the fixation dataframe if it is close to the image center. If yes, discard
+        close_entries = trial_fix[(abs(trial_fix["x_start"] - center_x) <= epsilon_px) &
+                                  (abs(trial_fix["y_start"] - center_y) <= epsilon_px)]
+
+        # Iterate through the indices of the close entries and the trial fixations: For as long as the order is the
+        # same, remove the fixations, since they are in the center screen at the beginning of the trial.
+        if close_entries.shape[0] > 0:
+            for close_entry_idx, fixation_entry_idx in zip(close_entries.index, trial_fix.index[:len(close_entries.index)]):
+                if close_entry_idx == fixation_entry_idx:
+                    drop_indices.append(close_entry_idx)
+                else:
+                    break
+
+    # Drop the collected indices and return
+    return fixations.drop(labels=drop_indices, axis="index")
+
+
 def construct_output_folder() -> None:
     """
         An output folder is created in the current cwd, if the folder does not already exist.
