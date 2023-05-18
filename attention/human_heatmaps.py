@@ -152,7 +152,7 @@ def compute_low_res_human_heatmap(
         p_slice = q_slice[q_slice["vp_code"] == p_id]
 
         # For every gaze coordinate point, update its proper cell in the heatmap
-        for gaze_x, gaze_y in p_slice[["image_x_start", "image_y_start"]].values:
+        for gaze_x, gaze_y in p_slice[["x_start", "y_start"]].values:
 
             # Get only valid fixations in the range of the image
             if x_min <= gaze_x <= x_max and y_min <= gaze_y <= y_max:
