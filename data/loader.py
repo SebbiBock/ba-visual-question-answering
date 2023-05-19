@@ -56,22 +56,27 @@ def load_images(question_id_list: List[str], return_paths: bool = False) -> List
     return img_paths if return_paths else [Image.open(img_path) for img_path in img_paths]
 
 
-def load_questions(question_id_list: List[str], fuze_ids_and_questions: bool = False) \
-        -> Union[List[Tuple[str]], List[str]]:
+def load_questions(
+        question_id_list: Union[List[str], None],
+        fuze_ids_and_questions: bool = False
+) -> Union[List[Tuple[str]], List[str], List[Dict[str, str]]]:
     """
         Loads and returns the questions for the given question_ids as a List.
 
-        :param question_id_list: List of question ids (VQAv2), each as string.
+        :param question_id_list: List of question ids (VQAv2), each as string or None, if all questions should be loaded
         :param fuze_ids_and_questions: Whether the questions are to be fuzed to their question ID.
         :return: A List of question strings, optionally with their IDs fuzed as Tuples
     """
 
-    # Sanity check: Enforce type
-    question_id_list = [str(question_id) for question_id in question_id_list]
-
     # Load in question annotation data
     with open(Path(PATH_DICT["QUESTION_PATH"]), "rb") as f:
         question_dict = json.load(f)
+
+    if question_id_list is None:
+        return question_dict["questions"]
+
+    # Sanity check: Enforce type
+    question_id_list = [str(question_id) for question_id in question_id_list]
 
     # Construct list
     question_list = [""] * len(question_id_list)
@@ -89,23 +94,29 @@ def load_questions(question_id_list: List[str], fuze_ids_and_questions: bool = F
     return list(zip(question_id_list, question_list)) if fuze_ids_and_questions else question_list
 
 
-def load_annotated_answers(question_id_list: List[str], single_answer: bool = True) -> Dict[str, Union[str, List[str]]]:
+def load_annotated_answers(
+        question_id_list: Union[List[str], None],
+        single_answer: bool = True
+) -> Dict[str, Union[str, List[str]]]:
     """
         Loads and returns the annotated answers for the given question_ids. If the single_answer flag
         is set to true, only the most common answer across all annotators is returned, otherwise,
         all annotated answers are returned.
 
-        :param question_id_list: List of question ids (VQAv2), each as string.
+        :param question_id_list: List of question ids (VQAv2), each as string or None, if all answers are to be returned
         :param single_answer: If the most common annotated answer is to be returned, or all.
-        :return: A Dictionary containing the question_ids as keys and the answer(s) as values.
+        :return: A Dictionary containing the question_ids as keys and the answer(s) as values, or the whole annotation json
     """
-
-    # Sanity check: Enforce type
-    question_id_list = [str(question_id) for question_id in question_id_list]
 
     # Load in annotated data from VQAv2
     with open(Path(PATH_DICT["ANNOTATION_PATH"]), "rb") as f:
         annotations = json.load(f)
+
+    if question_id_list is None:
+        return annotations["annotations"]
+
+    # Sanity check: Enforce type
+    question_id_list = [str(question_id) for question_id in question_id_list]
 
     # Construct dictionary
     answer_dict = {}
