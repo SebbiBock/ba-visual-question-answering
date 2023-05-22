@@ -97,7 +97,7 @@ def load_questions(
 def load_annotated_answers(
         question_id_list: Union[List[str], None],
         single_answer: bool = True
-) -> Dict[str, Union[str, List[str]]]:
+) -> Dict[str, Union[str, List[str], Dict[str, List[str]]]]:
     """
         Loads and returns the annotated answers for the given question_ids. If the single_answer flag
         is set to true, only the most common answer across all annotators is returned, otherwise,
