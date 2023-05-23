@@ -147,7 +147,7 @@ for test_question, test_image in zip(test_questions, test_images):
 	disp.show()
 
 	# Continue with any button press and clear the screen afterwards
-	kb.get_key(keylist=None, timeout=None, flush=True)
+	kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
 	scr.clear()
 
 	# Get image scale
