@@ -2,6 +2,7 @@ import pygaze
 import psychopy as pspy
 
 from typing import List
+from constants import TEXTSIZE
 
 
 class TextInputBox(object):
@@ -35,14 +36,14 @@ class TextInputBox(object):
         # Initialize attributes
         self.scr = scr
         self.disp = disp
-        self.textbox = pspy.visual.TextStim(pygaze.expdisplay, color=text_color)
+        self.textbox = pspy.visual.TextStim(pygaze.expdisplay, color=text_color, height=TEXTSIZE)
         self.text = ''
         self.instruction = instruction
         self.caps = caps
 
         # Create sub and super text boxes
-        self.subtext_box = pspy.visual.TextStim(pygaze.expdisplay, subtext, pos=(0, -220), color=text_color) if subtext is not None else None
-        self.supertext_box = pspy.visual.TextStim(pygaze.expdisplay, supertext, pos=(0, 220), color=text_color) if supertext is not None else None
+        self.subtext_box = pspy.visual.TextStim(pygaze.expdisplay, subtext, pos=(0, -220), color=text_color, height=TEXTSIZE - 1) if subtext is not None else None
+        self.supertext_box = pspy.visual.TextStim(pygaze.expdisplay, supertext, pos=(0, 220), color=text_color, height=TEXTSIZE - 1) if supertext is not None else None
 
         # Make font size of the subtext smaller
         if self.subtext_box is not None:
