@@ -32,12 +32,12 @@ Also, make sure that the EyeTracker is not in their line of sight to the monitor
 8) Start the experiment.
 
 #### Calibration:
-1) The calibration view will open itself once the experiment runs.
-2) Tell the participant what the calibration will look like: First, look at the center dot, once you're ready, press space. Points will appear
-in the corners of the screen, your task is to fixate on these points to the best of your ability.
-3) Validation: Same thing.
+1) The calibration view will open itself once the experiment runs. I have to press c.
+2) Tell the participant what the calibration will look like: First, look at the center dot, once they're ready, I press space. Points will appear
+in the corners of the screen, your task is to fixate on these points to the best of your ability. Once they're done, I need to press Enter.
+3) Validation: Press v, then it's the same thing. Once done, I press Enter.
 4) If the results are not good, simply re-do the calibration. The average validation error should be <= 0.6, the max validation error should be < 1.
-5) Noise correction: Simply focus on the stimulus.
+5) Noise correction: I press q, and then space. Simply focus on the stimulus.
 6) Done. Now, the experiment can start.
 
 #### Further stuff:
