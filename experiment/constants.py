@@ -69,7 +69,7 @@ INSTRUCTIONS = """
 Instructions:
 \n
 You will be presented a series of Image-Question pairs and you have to answer the question based on the given image.\n
-First, you'll be shown the question that you can read for as long as you want. Read and remember every question CAREFULLY. If you don't know what a certain word means, feel free to ask the experimenter at any time.\n
+First, you'll be shown the question that you can read for as long as you want. Read and remember every question CAREFULLY, it will only be shown ONCE. If you don't know what a certain word means, feel free to ask the experimenter at any time.\n
 With the press of the Enter key, the question will disappear, and the corresponding image to the question will appear.\n
 Between these steps, a calibration stimulus might appear that you simply need to fixate on.\n
 You can view the image for as long as you want.\n
