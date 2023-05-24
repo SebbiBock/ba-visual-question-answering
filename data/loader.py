@@ -29,7 +29,8 @@ PATH_DICT = {
     "HUMAN_ANSWERS_PATH": DATA_PATH + "mhug/mhug/vqa-mhug_answers.pickle",
     "BOUNDING_BOXES_PATH": DATA_PATH + "mhug/mhug/vqa-mhug_bboxes.pickle",
     "GENERATED_HEATMAP_DIR_PATH": DATA_PATH + "mhug/deliverables/vqa-mhug/img-attmap/",
-    "EXPERIMENT_OUTPUT_PATH": "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/experiment/exp_output/"
+    "EXPERIMENT_OUTPUT_PATH": "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/experiment/exp_output/",
+    "REASONING_TYPES_PATH": "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/data/reasoning_types_saved.pkl"
 }
 
 
@@ -276,3 +277,14 @@ def load_model_results(model_str: str) -> Tuple[Dict[str, np.array], Dict[str, n
 
     return return_dicts[0], return_dicts[1], model_answer_df
 
+
+def load_annotated_reasoning_types() -> Dict[str, str]:
+    """
+        Loads in the dictionary containing the reasoning type annotations for the question IDs of the VQAv2 dataset.
+
+        :return: The dictionary containing question ids and their corresponding annotated reasoning type
+    """
+
+    with open(Path(PATH_DICT["REASONING_TYPES_PATH"]), "rb") as f:
+        annotations = pickle.load(f)
+    return annotations

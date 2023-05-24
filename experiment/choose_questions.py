@@ -10,6 +10,7 @@ import pandas as pd
 
 import data.loader as loader
 
+from pathlib import Path
 from typing import Dict, Tuple
 
 
@@ -484,8 +485,8 @@ def annotate_questions_with_reasoning_type() -> Dict[str, str]:
             type_dict[q_id] = "absurd"
 
     # Save the dictionary
-    with open("reasoning_types_saved.pkl", "wb") as f:
-        pickle.dump(type_dict, f)
+    with open(Path(loader.PATH_DICT["REASONING_TYPES_PATH"]), "wb") as rtf:
+        pickle.dump(type_dict, rtf)
 
     # Return the type dict
     return type_dict
