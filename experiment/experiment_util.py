@@ -61,6 +61,26 @@ def get_test_image_directory():
     return test_dir
 
 
+def get_data_safety_dir():
+    """
+        Returns the directory to the pages of the data safety directory.
+
+        :return: Directory to the data safety images.
+    """
+
+    # Path to the image file for the given group
+    data_safety_dir = os.path.join(DIR, f'images/data_safety')
+
+    # Create the directory, if it does not yet exist
+    if not os.path.isdir(data_safety_dir):
+        os.mkdir(data_safety_dir)
+
+        # Raise exception that no images could be found
+        raise Exception(f"Aborting experiment: No image files found under {data_safety_dir}!")
+
+    return data_safety_dir
+
+
 def create_and_return_output_directory(vp_name_str: str):
     """
         Creates and returns the output directory for the given participant.
@@ -115,7 +135,7 @@ def save_demographic_data(
     f.close()
 
 
-def get_image_scale(img_path: str, disp_size: Tuple[int], factor: Tuple[float] = (0.75, 0.85)) -> Tuple[int]:
+def get_image_scale(img_path: str, disp_size: Tuple[int], factor: Tuple[float, float] = (0.75, 0.85)) -> Tuple[int]:
     """
         Returns the scale factor for the given image so that its longer side (either width or height, but prefer
         height over width in equal cases) is as long as a certain percentage / factor of the display size.

@@ -35,9 +35,71 @@ CONTINUE_KEYS = ["return"]
 # Get the group for the given participant
 participant_group = get_participant_group()
 
-# Get the directory to the images for the given group and test images
+# Get the directory to the images for the given group and test images + the data security director
 image_dir = get_group_image_directory(participant_group)
 test_dir = get_test_image_directory()
+data_safety_dir = get_data_safety_dir()
+
+
+
+### DATENSCHUTZERKLAERUNG ###
+
+# Show first page of the data security formula
+scr.clear()
+scr.draw_image(os.path.join(data_safety_dir, "page1.png"), scale=get_image_scale(
+	os.path.join(data_safety_dir, "page1.png"), scr.dispsize, factor=(0.7, 0.7))
+)
+scr.draw_text(text="Press Enter to see the second page...", fontsize=TEXTSIZE, pos=(
+	center_screen_x, int(center_screen_y * 2) - 25
+), centre=True)
+disp.fill(scr)
+disp.show()
+
+# Wait for a keypress
+kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
+
+# Show second page of the data security formula
+scr.clear()
+scr.draw_image(os.path.join(data_safety_dir, "page2.png"), scale=get_image_scale(
+	os.path.join(data_safety_dir, "page2.png"), scr.dispsize, factor=(0.7, 0.7))
+)
+scr.draw_text(text="Press Enter to see the third page...", fontsize=TEXTSIZE, pos=(
+	center_screen_x, int(center_screen_y * 2) - 25
+), centre=True)
+disp.fill(scr)
+disp.show()
+
+# Wait for a keypress
+kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
+
+# Show third page of the data security formula
+scr.clear()
+scr.draw_image(os.path.join(data_safety_dir, "page3.png"), scale=get_image_scale(
+	os.path.join(data_safety_dir, "page3.png"), scr.dispsize, factor=(0.7, 0.7))
+)
+scr.draw_text(text="Press Enter to continue...", fontsize=TEXTSIZE, pos=(
+	center_screen_x, int(center_screen_y * 2) - 25
+), centre=True)
+disp.fill(scr)
+disp.show()
+
+# Wait for a keypress
+kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
+
+# Get participant answer
+scr.clear()
+data_security_answer = TextInputBox(
+	scr,
+	disp,
+	FGC,
+	instruction="Do you accept (y/n)?",
+	key_list=["y", "n", "Y", "N"]
+).main_loop()
+
+# If they do not accept, abort the experiment. Otherwise, continue
+if data_security_answer in ["n", "N"]:
+	exit()
+
 
 
 ### VP-CODE + LOGGING ###
