@@ -30,7 +30,8 @@ PATH_DICT = {
     "BOUNDING_BOXES_PATH": DATA_PATH + "mhug/mhug/vqa-mhug_bboxes.pickle",
     "GENERATED_HEATMAP_DIR_PATH": DATA_PATH + "mhug/deliverables/vqa-mhug/img-attmap/",
     "EXPERIMENT_OUTPUT_PATH": "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/experiment/exp_output/",
-    "REASONING_TYPES_PATH": "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/data/reasoning_types_saved.pkl"
+    "REASONING_TYPES_PATH": "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/data/reasoning_types_saved.pkl",
+    "EXPERIMENT_QUESTION_PATH": "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/data/splits/"
 }
 
 
@@ -288,3 +289,24 @@ def load_annotated_reasoning_types() -> Dict[str, str]:
     with open(Path(PATH_DICT["REASONING_TYPES_PATH"]), "rb") as f:
         annotations = pickle.load(f)
     return annotations
+
+
+def load_experiment_questions_for_group(group: int, only_values: bool = True) -> Union[List[int], pd.DataFrame]:
+    """
+        Loads in the questions actually used in the experiment for the given group. If only_values is True,
+        only a one-dimensional array is returned containing the values, otherwise, the pd.DataFrame with
+        reasoning type annotation as columns is returned.
+
+        :param group: The group number
+        :param only_values: Boolean flag whether to only retrieve the values (True) or the whole df (False)
+        :return: Either the question ID values as a 1D List or the pd.DataFrame with reasoning type annotation
+    """
+
+    # Join path to point to proper group and load
+    with open(os.path.join(PATH_DICT["EXPERIMENT_QUESTION_PATH"], f"used_questions_group_{group}.pkl"), "rb") as f:
+        group_questions = pickle.load(f)
+
+    if only_values:
+        return group_questions.values.flatten().tolist()
+
+    return group_questions
