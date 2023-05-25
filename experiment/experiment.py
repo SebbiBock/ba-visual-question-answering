@@ -274,11 +274,11 @@ for trial_nr, (image, question, question_id) in enumerate(zip(images, questions,
 	# Present the image
 	scr.draw_image(os.path.join(image_dir, image), scale=scale)
 
-	# DEBUG: Get image bboxes: For the maximum, add 0.5 so it rounds up in doubt, for the minimum int rounds down
-	# x_min = center_screen_x - int(scr.screen[-1].size[0] / 2)
-	# x_max = center_screen_x + int(scr.screen[-1].size[0] / 2 + 0.5)
-	# y_min = center_screen_y - int(scr.screen[-1].size[1] / 2)
-	# y_max = center_screen_y + int(scr.screen[-1].size[1] / 2 + 0.5)
+	# Get image bboxes: For the maximum, add 0.5 so it rounds up in doubt, for the minimum int rounds down
+	x_min = center_screen_x - int(scr.screen[-1].size[0] / 2)
+	x_max = center_screen_x + int(scr.screen[-1].size[0] / 2 + 0.5)
+	y_min = center_screen_y - int(scr.screen[-1].size[1] / 2)
+	y_max = center_screen_y + int(scr.screen[-1].size[1] / 2 + 0.5)
 
 	# DEBUG: Draw fixations for debug to assure proper bounding box calculation.
 	# scr.draw_fixation(pos=(x_min, y_min), color="red")
