@@ -149,8 +149,8 @@ gender = TextInputBox(
 	scr,
 	disp,
 	FGC,
-	instruction="Please enter your gender (m/w/d)",
-	key_list=["m", "w", "d"]
+	instruction="Please enter your gender (m/f/d)",
+	key_list=["m", "f", "d"]
 ).main_loop()
 
 # Create input box for the age where only numbers are valid and get its input
