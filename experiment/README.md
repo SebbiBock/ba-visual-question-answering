@@ -14,6 +14,7 @@ to point to the proper directions of where the data is stored.
 5) EyeTracker-PC: Enter Screen Dimensions and Resolution, if they have changed. Default resolution: 2560, 1440; Default screen dimensions: 59.5, 33.5.
 6) Display-PC: Connect it to a power source, the monitor and the ethernet (LAN cable)
 7) Display-PC: Boot-Up
+8) Lightning Conditions: Ensure equal lightning conditions: Darken the windows and turn on the room light
 
 #### Participant:
 
