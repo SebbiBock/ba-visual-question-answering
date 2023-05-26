@@ -13,22 +13,13 @@ from attention.hooks import EncapsulateTransformerAttention, EncapsulateTransfor
 
 def main():
 
-    # Questions IDs of the test images taken
-    question_ids = ["104829001", "109945002", "111416001", "270386001", "392228001",
-                    "395665001", "395801001", "469174001", "472228001", "472478001",
-                    "106351001", "109894001", "270136001", "271076001", "394517001",
-                    "396997001", "469067001", "470882001", "472246001"]
-
-    """
-    # Randomly chosen 20 ones
-    question_ids = ['566550013', '491061001', '214224017', '565273001', '368576000',
-                    '312552002', '67342003', '174070000', '77891000', '536403008',
-                    '489733005', '497568003', '445233002', '342318002', '213592002',
-                    '217517001', '523527002', '384531001', '568972001', '109945002']
-    """
+    # Retrieve question IDs of the questions actually used in the experiment
+    question_ids = loader.load_experiment_questions_for_group(1)
+    question_ids.extend(loader.load_experiment_questions_for_group(2))
+    question_ids = [str(q) for q in question_ids]
 
     # Choose model
-    model_package = blip
+    model_package = vilt
 
     # Create output path, if it doesn't exist
     dutil.construct_output_folder()
