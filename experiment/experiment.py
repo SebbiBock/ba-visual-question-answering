@@ -30,13 +30,76 @@ center_screen_y = int(scr.dispsize[1] / 2)
 
 # Create the keyboard for inputs
 kb = Keyboard()
+CONTINUE_KEYS = ["return"]
 
 # Get the group for the given participant
 participant_group = get_participant_group()
 
-# Get the directory to the images for the given group and test images
+# Get the directory to the images for the given group and test images + the data security director
 image_dir = get_group_image_directory(participant_group)
 test_dir = get_test_image_directory()
+data_safety_dir = get_data_safety_dir()
+
+
+
+### DATENSCHUTZERKLAERUNG ###
+
+# Show first page of the data security formula
+scr.clear()
+scr.draw_image(os.path.join(data_safety_dir, "page1.png"), scale=get_image_scale(
+	os.path.join(data_safety_dir, "page1.png"), scr.dispsize, factor=(0.7, 0.7))
+)
+scr.draw_text(text="Press Enter to see the second page...", fontsize=TEXTSIZE, pos=(
+	center_screen_x, int(center_screen_y * 2) - 25
+), centre=True)
+disp.fill(scr)
+disp.show()
+
+# Wait for a keypress
+kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
+
+# Show second page of the data security formula
+scr.clear()
+scr.draw_image(os.path.join(data_safety_dir, "page2.png"), scale=get_image_scale(
+	os.path.join(data_safety_dir, "page2.png"), scr.dispsize, factor=(0.7, 0.7))
+)
+scr.draw_text(text="Press Enter to see the third page...", fontsize=TEXTSIZE, pos=(
+	center_screen_x, int(center_screen_y * 2) - 25
+), centre=True)
+disp.fill(scr)
+disp.show()
+
+# Wait for a keypress
+kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
+
+# Show third page of the data security formula
+scr.clear()
+scr.draw_image(os.path.join(data_safety_dir, "page3.png"), scale=get_image_scale(
+	os.path.join(data_safety_dir, "page3.png"), scr.dispsize, factor=(0.7, 0.7))
+)
+scr.draw_text(text="Press Enter to continue...", fontsize=TEXTSIZE, pos=(
+	center_screen_x, int(center_screen_y * 2) - 25
+), centre=True)
+disp.fill(scr)
+disp.show()
+
+# Wait for a keypress
+kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
+
+# Get participant answer
+scr.clear()
+data_security_answer = TextInputBox(
+	scr,
+	disp,
+	FGC,
+	instruction="Do you accept (y/n)?",
+	key_list=["y", "n", "Y", "N"]
+).main_loop()
+
+# If they do not accept, abort the experiment. Otherwise, continue
+if data_security_answer in ["n", "N"]:
+	exit()
+
 
 
 ### VP-CODE + LOGGING ###
@@ -86,8 +149,8 @@ gender = TextInputBox(
 	scr,
 	disp,
 	FGC,
-	instruction="Please enter your gender (m/w/d)",
-	key_list=["m", "w", "d"]
+	instruction="Please enter your gender (m/f/d)",
+	key_list=["m", "f", "d"]
 ).main_loop()
 
 # Create input box for the age where only numbers are valid and get its input
@@ -112,7 +175,7 @@ disp.fill(scr)
 disp.show()
 
 # wait for a keypress
-kb.get_key(keylist=None, timeout=None, flush=True)
+kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
 
 # calibrate the eye tracker
 tracker.calibrate()
@@ -127,7 +190,7 @@ disp.fill(scr)
 disp.show()
 
 # wait for a keypress
-kb.get_key(keylist=None, timeout=None, flush=True)
+kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
 
 
 
@@ -141,12 +204,12 @@ for test_question, test_image in zip(test_questions, test_images):
 
 	# Present question and let the participant view it as long as they want
 	scr.draw_text(text=f"Question: {test_question}", fontsize=TEXTSIZE)
-	scr.draw_text(text="Press any key to view the image...", fontsize=TEXTSIZE - 1, pos=(center_screen_x, center_screen_y + 250), centre=True)
+	scr.draw_text(text="Press Enter to view the image...", fontsize=TEXTSIZE - 1, pos=(center_screen_x, center_screen_y + 250), centre=True)
 	disp.fill(scr)
 	disp.show()
 
 	# Continue with any button press and clear the screen afterwards
-	kb.get_key(keylist=None, timeout=None, flush=True)
+	kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
 	scr.clear()
 
 	# Get image scale
@@ -158,7 +221,7 @@ for test_question, test_image in zip(test_questions, test_images):
 	disp.show()
 
 	# Wait for the participant to continue
-	kb.get_key(keylist=None, timeout=None, flush=True)
+	kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
 
 	# Create input box for the answer
 	test_answer = TextInputBox(
@@ -175,7 +238,7 @@ disp.fill(scr)
 disp.show()
 
 # wait for a keypress
-kb.get_key(keylist=None, timeout=None, flush=True)
+kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
 
 
 
@@ -188,12 +251,12 @@ for trial_nr, (image, question, question_id) in enumerate(zip(images, questions,
 
 	# Present question and let the participant view it as long as they want
 	scr.draw_text(text=f"Question: {question}", fontsize=TEXTSIZE)
-	scr.draw_text(text="Press any key to view the image...", fontsize=TEXTSIZE - 1, pos=(center_screen_x, center_screen_y + 250), centre=True)
+	scr.draw_text(text="Press Enter to view the image...", fontsize=TEXTSIZE - 1, pos=(center_screen_x, center_screen_y + 250), centre=True)
 	disp.fill(scr)
 	disp.show()
 
 	# Continue with any button press and clear the screen afterwards
-	kb.get_key(keylist=None, timeout=None, flush=True)
+	kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
 	scr.clear()
 
 	# Get image scale
@@ -211,15 +274,15 @@ for trial_nr, (image, question, question_id) in enumerate(zip(images, questions,
 	# Present the image
 	scr.draw_image(os.path.join(image_dir, image), scale=scale)
 
-	# Get image bboxes: For the maximum, add 0.5 so it rounds up in doubt, for the minimum int automatically rounds down
+	# Get image bboxes: For the maximum, add 0.5 so it rounds up in doubt, for the minimum int rounds down
 	x_min = center_screen_x - int(scr.screen[-1].size[0] / 2)
 	x_max = center_screen_x + int(scr.screen[-1].size[0] / 2 + 0.5)
 	y_min = center_screen_y - int(scr.screen[-1].size[1] / 2)
 	y_max = center_screen_y + int(scr.screen[-1].size[1] / 2 + 0.5)
 
-	# Draw fixations for debug to assure proper bounding box calculation. TODO: Remove once assured!
-	scr.draw_fixation(pos=(x_min, y_min), color="red")
-	scr.draw_fixation(pos=(x_max, y_max), color="blue")
+	# DEBUG: Draw fixations for debug to assure proper bounding box calculation.
+	# scr.draw_fixation(pos=(x_min, y_min), color="red")
+	# scr.draw_fixation(pos=(x_max, y_max), color="blue")
 
 	# Actually show the image and log
 	disp.fill(scr)
@@ -228,7 +291,7 @@ for trial_nr, (image, question, question_id) in enumerate(zip(images, questions,
 
 
 	# Wait for the participant to continue
-	kb.get_key(keylist=None, timeout=None, flush=True)
+	kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
 
 	# stop recording
 	tracker.log("TRIALEND %d" % trial_nr)
@@ -277,7 +340,7 @@ disp.fill(scr)
 disp.show()
 
 # wait for a keypress
-kb.get_key(keylist=None, timeout=None, flush=True)
+kb.get_key(keylist=CONTINUE_KEYS, timeout=None, flush=True)
 
 # close the Display
 disp.close()

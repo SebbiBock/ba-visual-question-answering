@@ -39,7 +39,7 @@ BGC = (0, 0, 0)
 FGC = (255, 255, 255)
 
 # the TEXTSIZE determines the size of the text in the experiment
-TEXTSIZE = 22
+TEXTSIZE = 23
 
 # TIMING
 # the intertrial interval (ITI) is the minimal amount of time between the
@@ -69,27 +69,27 @@ INSTRUCTIONS = """
 Instructions:
 \n
 You will be presented a series of Image-Question pairs and you have to answer the question based on the given image.\n
-First, you'll be shown the question that you can read for as long as you want. Read and remember every question CAREFULLY. If you don't know what a certain word means, feel free to ask the experimenter.\n
-With the press of any key, the question will disappear, and the corresponding image to the question will appear.\n
+First, you'll be shown the question that you can read for as long as you want. Read and remember every question CAREFULLY, it will only be shown ONCE. If you don't know what a certain word means, feel free to ask the experimenter at any time.\n
+With the press of the Enter key, the question will disappear, and the corresponding image to the question will appear.\n
 Between these steps, a calibration stimulus might appear that you simply need to fixate on.\n
 You can view the image for as long as you want.\n
-Once you want to answer the given question, simply press any key. This will lead you to an input field for your answer.
-Enter your answer in english.\n
+Once you want to answer the given question, simply press the Enter key. This will lead you to an input field for your answer. Enter your answer IN ENGLISH.\n
 Once you entered your answer, this repeats until every Image-Question pair has been completed.\n
+If necessary, you can take a break in the question or answer view, but please do not do so while viewing the image.\n
 Now, three test trials will be run so you can get familiar with the experiment setup. \n
 \n
-Ready? Press any key to start the test runs...
+Ready? Press Enter to start the test runs...
 """
 
 CALIBRATION_INSTRUCTIONS = """
 Now, we will calibrate you to the EyeTracker.\n
-If you wear glasses, make sure to remove them now and use your contact lenses instead.\n
+If you wear glasses, make sure to remove them now and use your contact lenses instead.
+Once you are ready, you can start the calibration.\n
 First, you will need to fixate a stimulus (white circle) in the center of the screen.\n
-Once you are ready, we will start the calibration. Then, multiple calibration stimuli will appear in the corners of the screen. Your
-task is to fixate on them as quickly as possible.\n
+With the press of the Enter key, the stimulus will disappear and multiple calibration stimuli will appear in the corners of the screen. Your task is to fixate on them as accurate and fast as possible.\n
 If you have any questions beforehand, let us know.\n
 \n
-Press any key to continue...
+Press Enter to continue...
 """
 
 VP_INSTRUCTIONS = """
@@ -106,10 +106,10 @@ If you still have any questions to ask, feel free to ask now.\n
 Otherwise, the real experiment can begin.\n
 Please make sure that your answers do not contain any typos!\n
 \n
-Press any key to start the experiment...
+Press Enter to start the experiment...
 """
 
 EXIT_TEXT = """
 This is the end of the experiment. Thank you for participating!\n
-Press any key to stop the experiment.\n
+Press Enter to stop the experiment.\n
 """

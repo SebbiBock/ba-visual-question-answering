@@ -406,6 +406,11 @@ def create_trial_and_event_dict_from_dict(
         if event_name == "saccade":
             col_names.extend(["x_end", "y_end"])
 
+        # Insert dummy blink coordinates for compatibility of dataframe columns
+        if event_name == "blink":
+            for arr in trial_dict["events"][event]:
+                arr.extend([-1, -1])
+
         ev_df = pd.DataFrame(trial_dict["events"][event], columns=col_names)
 
         # Insert end coordinates and set them to start coordinates if the current event is not a saccade, since it

@@ -13,6 +13,8 @@ from pathlib import Path
 from PIL import Image
 from typing import Dict, List, Tuple, Union
 
+import util.data_util as dutil
+
 
 # Path to the data, if it differs from the current repo
 DATA_PATH = "F:/Content/Bachelorarbeit/data/"
@@ -27,7 +29,9 @@ PATH_DICT = {
     "HUMAN_ANSWERS_PATH": DATA_PATH + "mhug/mhug/vqa-mhug_answers.pickle",
     "BOUNDING_BOXES_PATH": DATA_PATH + "mhug/mhug/vqa-mhug_bboxes.pickle",
     "GENERATED_HEATMAP_DIR_PATH": DATA_PATH + "mhug/deliverables/vqa-mhug/img-attmap/",
-    "EXPERIMENT_OUTPUT_PATH": "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/experiment/exp_output/"
+    "EXPERIMENT_OUTPUT_PATH": "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/experiment/exp_output/",
+    "REASONING_TYPES_PATH": "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/data/reasoning_types_saved.pkl",
+    "EXPERIMENT_QUESTION_PATH": "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/data/splits/"
 }
 
 
@@ -54,22 +58,27 @@ def load_images(question_id_list: List[str], return_paths: bool = False) -> List
     return img_paths if return_paths else [Image.open(img_path) for img_path in img_paths]
 
 
-def load_questions(question_id_list: List[str], fuze_ids_and_questions: bool = False) \
-        -> Union[List[Tuple[str]], List[str]]:
+def load_questions(
+        question_id_list: Union[List[str], None],
+        fuze_ids_and_questions: bool = False
+) -> Union[List[Tuple[str]], List[str], List[Dict[str, str]]]:
     """
         Loads and returns the questions for the given question_ids as a List.
 
-        :param question_id_list: List of question ids (VQAv2), each as string.
+        :param question_id_list: List of question ids (VQAv2), each as string or None, if all questions should be loaded
         :param fuze_ids_and_questions: Whether the questions are to be fuzed to their question ID.
         :return: A List of question strings, optionally with their IDs fuzed as Tuples
     """
 
-    # Sanity check: Enforce type
-    question_id_list = [str(question_id) for question_id in question_id_list]
-
     # Load in question annotation data
     with open(Path(PATH_DICT["QUESTION_PATH"]), "rb") as f:
         question_dict = json.load(f)
+
+    if question_id_list is None:
+        return question_dict["questions"]
+
+    # Sanity check: Enforce type
+    question_id_list = [str(question_id) for question_id in question_id_list]
 
     # Construct list
     question_list = [""] * len(question_id_list)
@@ -87,23 +96,29 @@ def load_questions(question_id_list: List[str], fuze_ids_and_questions: bool = F
     return list(zip(question_id_list, question_list)) if fuze_ids_and_questions else question_list
 
 
-def load_annotated_answers(question_id_list: List[str], single_answer: bool = True) -> Dict[str, Union[str, List[str]]]:
+def load_annotated_answers(
+        question_id_list: Union[List[str], None],
+        single_answer: bool = True
+) -> Dict[str, Union[str, List[str], Dict[str, List[str]]]]:
     """
         Loads and returns the annotated answers for the given question_ids. If the single_answer flag
         is set to true, only the most common answer across all annotators is returned, otherwise,
         all annotated answers are returned.
 
-        :param question_id_list: List of question ids (VQAv2), each as string.
+        :param question_id_list: List of question ids (VQAv2), each as string or None, if all answers are to be returned
         :param single_answer: If the most common annotated answer is to be returned, or all.
-        :return: A Dictionary containing the question_ids as keys and the answer(s) as values.
+        :return: A Dictionary containing the question_ids as keys and the answer(s) as values, or the whole annotation json
     """
-
-    # Sanity check: Enforce type
-    question_id_list = [str(question_id) for question_id in question_id_list]
 
     # Load in annotated data from VQAv2
     with open(Path(PATH_DICT["ANNOTATION_PATH"]), "rb") as f:
         annotations = json.load(f)
+
+    if question_id_list is None:
+        return annotations["annotations"]
+
+    # Sanity check: Enforce type
+    question_id_list = [str(question_id) for question_id in question_id_list]
 
     # Construct dictionary
     answer_dict = {}
@@ -239,3 +254,59 @@ def load_participant_data(vp_code: Union[str, None] = None) -> Tuple[pd.DataFram
     )
 
 
+def load_model_results(model_str: str) -> Tuple[Dict[str, np.array], Dict[str, np.array], pd.DataFrame]:
+    """
+
+    """
+
+    # Get model path
+    paths = dutil.create_model_output_folders(model_str, fail_on_non_existent=True)
+
+    # Construct dicts for the heatmaps
+    heatmap_types = ["att_rollout", "grad_cam"]
+    return_dicts = [{}, {}]
+
+    for htype, return_dict in zip(heatmap_types, return_dicts):
+        for heatmap_name in os.listdir(paths[htype]):
+            return_dict.update({
+                heatmap_name.split(".")[0]: np.load(os.path.join(paths[htype], heatmap_name))
+            })
+
+    # Load model answers
+    with open(os.path.join(paths["predictions"], "answers.pkl"), "rb") as f:
+        model_answer_df = pickle.load(f)
+
+    return return_dicts[0], return_dicts[1], model_answer_df
+
+
+def load_annotated_reasoning_types() -> Dict[str, str]:
+    """
+        Loads in the dictionary containing the reasoning type annotations for the question IDs of the VQAv2 dataset.
+
+        :return: The dictionary containing question ids and their corresponding annotated reasoning type
+    """
+
+    with open(Path(PATH_DICT["REASONING_TYPES_PATH"]), "rb") as f:
+        annotations = pickle.load(f)
+    return annotations
+
+
+def load_experiment_questions_for_group(group: int, only_values: bool = True) -> Union[List[int], pd.DataFrame]:
+    """
+        Loads in the questions actually used in the experiment for the given group. If only_values is True,
+        only a one-dimensional array is returned containing the values, otherwise, the pd.DataFrame with
+        reasoning type annotation as columns is returned.
+
+        :param group: The group number
+        :param only_values: Boolean flag whether to only retrieve the values (True) or the whole df (False)
+        :return: Either the question ID values as a 1D List or the pd.DataFrame with reasoning type annotation
+    """
+
+    # Join path to point to proper group and load
+    with open(os.path.join(PATH_DICT["EXPERIMENT_QUESTION_PATH"], f"used_questions_group_{group}.pkl"), "rb") as f:
+        group_questions = pickle.load(f)
+
+    if only_values:
+        return group_questions.values.flatten().tolist()
+
+    return group_questions

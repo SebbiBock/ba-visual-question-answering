@@ -61,6 +61,26 @@ def get_test_image_directory():
     return test_dir
 
 
+def get_data_safety_dir():
+    """
+        Returns the directory to the pages of the data safety directory.
+
+        :return: Directory to the data safety images.
+    """
+
+    # Path to the image file for the given group
+    data_safety_dir = os.path.join(DIR, f'images/data_safety')
+
+    # Create the directory, if it does not yet exist
+    if not os.path.isdir(data_safety_dir):
+        os.mkdir(data_safety_dir)
+
+        # Raise exception that no images could be found
+        raise Exception(f"Aborting experiment: No image files found under {data_safety_dir}!")
+
+    return data_safety_dir
+
+
 def create_and_return_output_directory(vp_name_str: str):
     """
         Creates and returns the output directory for the given participant.
@@ -115,7 +135,7 @@ def save_demographic_data(
     f.close()
 
 
-def get_image_scale(img_path: str, disp_size: Tuple[int], factor: Tuple[float] = (0.7, 0.7)) -> Tuple[int]:
+def get_image_scale(img_path: str, disp_size: Tuple[int], factor: Tuple[float, float] = (0.75, 0.85)) -> Tuple[int]:
     """
         Returns the scale factor for the given image so that its longer side (either width or height, but prefer
         height over width in equal cases) is as long as a certain percentage / factor of the display size.
@@ -130,13 +150,23 @@ def get_image_scale(img_path: str, disp_size: Tuple[int], factor: Tuple[float] =
 
     img_w, img_h = img_size
     longer_idx = 0 if img_w > img_h else 1
+    shorter_idx = 1 if img_w > img_h else 0
 
     # Calculate scale factor so that the longer side is as long as the given percentage of the display size
     # Example: img_size = (640, 480), disp_size = (1920, 1080), factor = 0.75
     # Example: -> Desired size = 1440 -> scale factor = 1440 / 640 = 2.25
     desired_size = int(disp_size[longer_idx] * factor[longer_idx])
 
-    return desired_size / img_size[longer_idx]
+    # Calculate scale factor
+    scale_factor = desired_size / img_size[longer_idx]
+
+    # Check the smaller side: If the smaller side would be out of bounds with safety margin, use the factor for
+    # the smaller size instead. This only happens for near-quadratic images where the width is slightly longer.
+    if img_size[shorter_idx] * scale_factor >= disp_size[shorter_idx] * 0.95:
+        print("Hey")
+        return int(disp_size[shorter_idx] * factor[shorter_idx]) / img_size[shorter_idx]
+
+    return scale_factor
 
 
 
