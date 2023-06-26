@@ -58,6 +58,32 @@ def load_images(question_id_list: List[str], return_paths: bool = False) -> List
     return img_paths if return_paths else [Image.open(img_path) for img_path in img_paths]
 
 
+def load_images_no_harddrive(question_id_list: List[str], return_paths: bool = False) -> List[Union[Image.Image, Path]]:
+    """
+        Loads and returns the images for the given question_ids as a List. Only works for the experiment images,
+        can be used if I forget my harddrive again :)
+
+        :param question_id_list: List of question ids (VQAv2), each as string.
+        :param return_paths: Whether to return paths instead of loaded images. Defaults to False.
+        :return: A List of loaded PIL.Images.
+    """
+
+    # Sanity check: Enforce type
+    question_id_list = [str(question_id) for question_id in question_id_list]
+
+    # Construct path to experiment data folders
+    group_1_path = "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/experiment/images/group1/"
+    group_2_path = "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/experiment/images/group2/"
+
+    # Assign each q_id to either group1 or 2
+    img_folder_paths = [group_1_path if os.path.isfile(os.path.join(group_1_path, q_id + ".jpg")) else group_2_path for
+                        q_id in question_id_list]
+    img_paths = [Path(q_ids_path + q_id + ".jpg") for q_ids_path, q_id in zip(img_folder_paths, question_id_list)]
+
+    # Load and return images
+    return img_paths if return_paths else [Image.open(img_path) for img_path in img_paths]
+
+
 def load_questions(
         question_id_list: Union[List[str], None],
         fuze_ids_and_questions: bool = False
@@ -244,7 +270,7 @@ def load_participant_data(vp_code: Union[str, None] = None) -> Tuple[pd.DataFram
 
         # Add VP Code identifier to every df
         for t_df in [gaze_list[-1], event_list[-1], logger_list[-1]]:
-            t_df["vp_code"] = vp_code
+            t_df["vp_code"] = part_dir.split("-")[-1]
 
     # Concat the pd.DataFrames to one, if necessary, and return the tuple
     return (
