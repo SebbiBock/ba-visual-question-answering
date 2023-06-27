@@ -336,3 +336,32 @@ def load_experiment_questions_for_group(group: int, only_values: bool = True) ->
         return group_questions.values.flatten().tolist()
 
     return group_questions
+
+
+def load_demographic_data() -> pd.DataFrame:
+    """
+        Load and return the demographic data of all participants as one pd.DataFrame.
+
+        :return: The pd.DataFrame containing all demographic data.
+    """
+
+    # Output directories to consider: ALl or the specified participant
+    output_dirs = [x for x in os.listdir(Path(PATH_DICT["EXPERIMENT_OUTPUT_PATH"]))]
+
+    # Return list
+    demographic_lst = []
+
+    for part_dir in output_dirs:
+
+        # Assemble path to needed file
+        path_to_demographic = os.path.join(PATH_DICT["EXPERIMENT_OUTPUT_PATH"], part_dir, "demographic.txt")
+
+        # Read in data
+        if os.path.isfile(path_to_demographic):
+            with open(path_to_demographic, "r") as demog:
+                lines = demog.readlines()
+                demographic_lst.append([x.split(" ")[1].strip("\n") for x in lines[1:]])
+
+    demog_df = pd.DataFrame(demographic_lst, columns=["Age", "Gender"])
+    demog_df["Age"] = demog_df["Age"].astype(int)
+    return demog_df
