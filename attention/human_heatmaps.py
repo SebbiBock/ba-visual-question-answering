@@ -9,9 +9,12 @@ def create_gaussian_kernel_for_fixation(center, image_size, sig=(50, 50)):
         Function that smooths over the given fixation using a gaussian kernel to create a heatmap of proper size
         (image size) for just that fixation.
 
+        The sigma value can be determined as pixels per visual angle. For our experimental setup, we have 75.3px per
+        visual angle. In accordance to VQA-MHUG, we divide it by 1.5 to get the sigma value of 50.
+
         :param center: The fixation center as coordinate tuple (x,y).
         :param image_size: The total image size (width, height).
-        :param sig: The sigma value for the smoothing of the gaussian kernel
+        :param sig: The sigma value for the smoothing of the gaussian kernel. Should correspond to the pixels per visual angle.
         :return: Heatmap containing only this fixation smoothed with a gaussian kernel
     """
 
