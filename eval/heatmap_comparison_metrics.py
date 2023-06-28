@@ -73,7 +73,7 @@ def auc_borji(saliency_map, fixation_map, n_rep=100, step_size=0.1):
         Implement the Area Under the Curve for the ROC-Curve of a saliency map. This measures how well the saliency map
         of an image predicts the ground truth human fixations on the image. The low-size transformer heatmap is needed,
         since we need to determine whether a point was a fixation. For this, we simply need to check if the human data
-        has a value greater 0 to it, meaning that at least one human subject fixated on this point.
+        has a value greater or equal to 0.1 assigned to it, meaning that at least one human subject fixated on this point.
 
         LOCATION BASED METRIC
 
@@ -87,7 +87,7 @@ def auc_borji(saliency_map, fixation_map, n_rep=100, step_size=0.1):
     """
 
     # Get fixations
-    fixation_map = fixation_map > 0
+    fixation_map = fixation_map >= 0.1
 
     # If there are no fixation to predict, return 0
     if not np.any(fixation_map):
@@ -131,7 +131,7 @@ def nss(saliency_map, fixation_map):
         Implement the normalized scanpath saliency of a saliency map, defined as the mean value of normalize saliency values
         at fixation locations. Larger values imply higher similarity. The low-size transformer heatmap is needed, since we
         need to determine whether a point was a fixation. For this, we simply need to check if the human data has a value
-        greater than 0 to it, meaning that at least one human subject fixated on this point.
+        greater or equal to 0.1 assigned to it, meaning that at least one human subject fixated on this point.
 
         VALUE BASED METRIC THAT IS USED AS REPRESENTATIVE FOR CLUSTER
 
@@ -141,7 +141,7 @@ def nss(saliency_map, fixation_map):
     """
 
     # Get fixations
-    f_map = fixation_map > 0
+    f_map = fixation_map >= 0.1
 
     # Normalize saliency map to have zero mean and unit std
     s_map = (saliency_map - np.mean(saliency_map)) / np.std(saliency_map)
