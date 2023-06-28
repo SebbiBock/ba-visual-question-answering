@@ -272,6 +272,10 @@ def load_participant_data(vp_code: Union[str, None] = None) -> Tuple[pd.DataFram
         for t_df in [gaze_list[-1], event_list[-1], logger_list[-1]]:
             t_df["vp_code"] = part_dir.split("-")[-1]
 
+    # Some pre-processing for proper evaluation:
+    for lgdf in logger_list:
+        lgdf["answer"] = lgdf["answer"].apply(lambda x: "ANA" if x == "A N A " else x)
+
     # Concat the pd.DataFrames to one, if necessary, and return the tuple
     return (
         pd.concat(gaze_list, ignore_index=True) if len(gaze_list) > 1 else gaze_list[0],
