@@ -296,6 +296,11 @@ def load_model_results(model_str: str) -> Tuple[Dict[str, np.array], Dict[str, n
     heatmap_types = ["att_rollout", "grad_cam"]
     return_dicts = [{}, {}]
 
+    # Additional check for BEiT-3: No GRAD-CAM was computed here, since it is computationally expensive, and
+    # we already opted to simply use the attention rollout maps
+    if model_str == "beit3":
+        heatmap_types = ["att_rollout"]
+
     for htype, return_dict in zip(heatmap_types, return_dicts):
         for heatmap_name in os.listdir(paths[htype]):
             return_dict.update({

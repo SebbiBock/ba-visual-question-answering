@@ -82,6 +82,9 @@ def preprocess(
         :return: The preprocessed data as a Dictionary.
     """
 
+    if isinstance(question, tuple):
+        question = [question]
+
     return dict(questions=[q[1] for q in question],
                 question_ids=[q[0] for q in question],
                 images=[image])

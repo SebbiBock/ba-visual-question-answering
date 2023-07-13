@@ -93,8 +93,6 @@ class BaseDataset(torch.utils.data.Dataset):
             tokens = self.tokenizer.tokenize(question_text)
             token_ids = self.tokenizer.convert_tokens_to_ids(tokens)
 
-            # Path to image
-
             items.append({
                 "image_path": img_path,
                 "text_segment": token_ids,
