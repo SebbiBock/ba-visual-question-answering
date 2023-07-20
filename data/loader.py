@@ -321,6 +321,8 @@ def load_annotated_reasoning_types() -> Dict[str, str]:
         :return: The dictionary containing question ids and their corresponding annotated reasoning type
     """
 
+    print("WARNING: You're loading the unvalidated reasoning types! Rather load the experiment reasoning types.")
+
     with open(Path(PATH_DICT["REASONING_TYPES_PATH"]), "rb") as f:
         annotations = pickle.load(f)
     return annotations
