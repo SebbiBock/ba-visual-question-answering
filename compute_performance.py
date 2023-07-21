@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pickle
 
 import data.loader as loader
 import util.data_util as dutil
@@ -25,7 +26,7 @@ def compute_performance():
 
     # Load in participant answers
     gaze_df, event_df, logger_df = loader.load_participant_data()
-    question_ids = logger_df["question_id"].value_counts().index.tolist()[:10]
+    question_ids = logger_df["question_id"].value_counts().index.tolist()
 
     # Get annotated answers
     annotated_answers = loader.load_annotated_answers(question_ids, single_answer=False)
@@ -245,6 +246,11 @@ def compute_performance():
     cosine_df["question_id"] = question_ids
     cosine_df["reasoning_type"] = cosine_df["question_id"].apply(lambda x: reasoning_type_df.isin([x]).any()[reasoning_type_df.isin([x]).any() == True].index[0])
 
+    # Save evaluations
+    for df, name in zip([accuracy_df, vqav2_df, wu_palmer_df, cosine_df], ["accuracy", "vqav2", "wu_palmer", "cosine"]):
+        with open(f"{name}_performance_df.pkl", "wb") as f:
+            pickle.dump(df, f)
+
     return accuracy_df, vqav2_df, wu_palmer_df, cosine_df
 
 
@@ -332,6 +338,7 @@ def compute_performance_no_preprocessing():
 
         # Check if the answer is absurd
         if reasoning_type_qid == "absurd":
+            print("absurd")
             for model_idx in [1, 2, 3]:
                 for metric_lst in [accuracy_list, vqav2_list, cosine_list, wu_palmer_list]:
                     metric_lst[model_idx].append(
@@ -451,4 +458,35 @@ def compute_performance_no_preprocessing():
     cosine_df["question_id"] = question_ids
     cosine_df["reasoning_type"] = cosine_df["question_id"].apply(lambda x: reasoning_type_df.isin([x]).any()[reasoning_type_df.isin([x]).any() == True].index[0])
 
+    # Save evaluations
+    for df, name in zip([accuracy_df, vqav2_df, wu_palmer_df, cosine_df], ["accuracy", "vqav2", "wu_palmer", "cosine"]):
+        with open(f"{name}_nopreproc_performance_df.pkl", "wb") as f:
+            pickle.dump(df, f)
+
     return accuracy_df, vqav2_df, wu_palmer_df, cosine_df
+
+
+def get_mean_performance_reasoning_types(perf_df: pd.DataFrame) -> pd.DataFrame:
+    """
+        Group the performance according to reasoning types and take the mean for each model / human data.
+
+        :param perf_df: The pd.DataFrame of one performance metric
+        :return: The grouped pd.DataFrame
+    """
+    # Copy to avoid side artifacts
+    perf_df = perf_df.copy()
+
+    # List of all participants
+    participant_col_list = [f"Participant_{x + 1}" for x in range(10)]
+
+    # Take human mean over all axes
+    perf_df["human"] = perf_df[participant_col_list].mean(axis=1)
+    perf_df = perf_df.drop(columns=participant_col_list)
+
+    # Group, re-arrange and return
+    grouped = perf_df.groupby("reasoning_type").mean().drop(columns=["question_id"])
+
+    # Sort after human performance
+    grouped = grouped.sort_values(by=["human"], axis=0)
+
+    return grouped[["human", "vilt", "blip", "beit"]]
