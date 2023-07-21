@@ -24,7 +24,7 @@ def get_answers_for_question(answer_df: pd.DataFrame, question_id: str) -> List[
     return answer_df[answer_df["question_id"] == question_id]["answer"].values.tolist()
 
 
-def get_fixation_df(event_df: pd.DataFrame, screen_w=2560, screen_h=1440, epsilon_px=25) -> pd.DataFrame:
+def get_fixation_df(event_df: pd.DataFrame, screen_w=2560, screen_h=1440, epsilon_px=75) -> pd.DataFrame:
     """
         Get all fixations from the given pd.DataFrame containing all events. More specifically, all fixations are extracted
         and filtered: The first fixation(s) are removed if they are in proximity to the screen center, since they presumably
@@ -33,7 +33,7 @@ def get_fixation_df(event_df: pd.DataFrame, screen_w=2560, screen_h=1440, epsilo
         :param event_df: The pd.DataFrame containing all events
         :param screen_w: The width of the screen used in the experiment
         :param screen_h: The height of the screen used in the experiment
-        :param epsilon_px: The allowed difference in pixels to the screen center for a fixation to be considered in the center
+        :param epsilon_px: The allowed difference in pixels to the screen center for a fixation to be considered in the center. Default corresponds to one pixel per visual degree
         :return: A pd.DataFrame containing only the valid fixations
     """
 
@@ -41,32 +41,45 @@ def get_fixation_df(event_df: pd.DataFrame, screen_w=2560, screen_h=1440, epsilo
     fixations = event_df[event_df["event"] == "fixation"]
 
     # Assemble list of indices to drop
-    drop_indices = []
+    close_indices = []
 
-    # Separate data for every trial
-    for trial in fixations["trial_id"].value_counts().index:
+    # Center screen coordinates
+    center_x = screen_w / 2
+    center_y = screen_h / 2
 
-        # Get slice and sort by time (ascending) to get chronological fixations
-        trial_fix = fixations[fixations["trial_id"] == trial].sort_values(by=["start"], ascending=True)
+    def helper(a):
+        """
+            Helper function to determine if a fixation is roughly center screen.
+        """
+        x = a["x_start"]
+        y = a["y_start"]
+        return abs(x - center_x) <= epsilon_px and abs(y - center_y) <= epsilon_px
 
-        # Get image center in screen(!) coordinates
-        center_x, center_y = int(screen_w / 2), int(screen_h / 2)
+    # Get all close fixations
+    fixations["close"] = fixations[["x_start", "y_start"]].apply(helper, axis=1)
 
-        # Check for the first entry in the fixation dataframe if it is close to the image center. If yes, discard
-        close_entries = trial_fix[(abs(trial_fix["x_start"] - center_x) <= epsilon_px) &
-                                  (abs(trial_fix["y_start"] - center_y) <= epsilon_px)]
+    # Loop through every participant
+    for vp in fixations["vp_code"].value_counts().index.values:
 
-        # Iterate through the indices of the close entries and the trial fixations: For as long as the order is the
-        # same, remove the fixations, since they are in the center screen at the beginning of the trial.
-        if close_entries.shape[0] > 0:
-            for close_entry_idx, fixation_entry_idx in zip(close_entries.index, trial_fix.index[:len(close_entries.index)]):
-                if close_entry_idx == fixation_entry_idx:
-                    drop_indices.append(close_entry_idx)
+        # Get respective vp data
+        this_vp = fixations[fixations["vp_code"] == vp]
+
+        # Loop through every trial
+        for trial in this_vp["trial_id"].value_counts().index.values:
+
+            # Get corresponding trial data and sort for the first x (here: 1) fixations
+            trial_slice = this_vp[this_vp["trial_id"] == trial]
+            first_fixations = trial_slice[:1]
+
+            # Append fixations as long as they're consecutively center screen
+            for idx in first_fixations.index:
+                if first_fixations.loc[idx]["close"]:
+                    close_indices.append(idx)
                 else:
                     break
 
     # Drop the collected indices and return
-    return fixations.drop(labels=drop_indices, axis="index")
+    return fixations.drop(index=close_indices)
 
 
 def construct_output_folder() -> None:
