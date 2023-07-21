@@ -31,7 +31,8 @@ PATH_DICT = {
     "GENERATED_HEATMAP_DIR_PATH": DATA_PATH + "mhug/deliverables/vqa-mhug/img-attmap/",
     "EXPERIMENT_OUTPUT_PATH": "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/experiment/exp_output/",
     "REASONING_TYPES_PATH": "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/data/reasoning_types_saved.pkl",
-    "EXPERIMENT_QUESTION_PATH": "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/data/splits/"
+    "EXPERIMENT_QUESTION_PATH": "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/data/splits/",
+    "GENERAL_DATA_PATH": "D:/6.Semester/Bachelorthesis/ba-visual-question-answering/data/"
 }
 
 
@@ -376,3 +377,33 @@ def load_demographic_data() -> pd.DataFrame:
     demog_df = pd.DataFrame(demographic_lst, columns=["Age", "Gender"])
     demog_df["Age"] = demog_df["Age"].astype(int)
     return demog_df
+
+
+def load_computed_performance_scores() -> Tuple[pd.DataFrame]:
+    """
+        Loads and returns the computed performance score DataFrames.
+
+        :return: A Tuple of pd.DataFrames, each representing one performance metric: [Accuracy, VQAv2, Wu_Palmer, Cosine]
+    """
+
+    dfs = []
+    for metric in ["accuracy", "vqav2", "wu_palmer", "cosine"]:
+        path_to = Path(PATH_DICT["GENERAL_DATA_PATH"] + f"{metric}_performance_df.pkl")
+        with open(path_to, "rb") as f:
+            dfs.append(pickle.load(f))
+    return dfs
+
+
+def load_computed_performance_scores_no_preproc() -> Tuple[pd.DataFrame]:
+    """
+        Loads and returns the computed performance score DataFrames if no preprocessing is conducted.
+
+        :return: A Tuple of pd.DataFrames, each representing one performance metric: [Accuracy, VQAv2, Wu_Palmer, Cosine]
+    """
+
+    dfs = []
+    for metric in ["accuracy", "vqav2", "wu_palmer", "cosine"]:
+        path_to = Path(PATH_DICT["GENERAL_DATA_PATH"] + f"{metric}_nopreproc_performance_df.pkl")
+        with open(path_to, "rb") as f:
+            dfs.append(pickle.load(f))
+    return dfs
