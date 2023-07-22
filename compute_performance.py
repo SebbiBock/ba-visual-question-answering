@@ -490,3 +490,27 @@ def get_mean_performance_reasoning_types(perf_df: pd.DataFrame) -> pd.DataFrame:
     grouped = grouped.sort_values(by=["human"], axis=0)
 
     return grouped[["human", "vilt", "blip", "beit"]]
+
+
+def append_reasoning_type_to_df(df: pd.DataFrame) -> pd.DataFrame:
+    """
+        Compute the time aggregated per reasoning type.
+
+        :param df: The df to append the reasoning type to
+        :return: df with reasoning type appended
+    """
+
+    # Copy to avoid side artifacts
+    logger_df = df.copy()
+
+    # Load annotations
+    a = loader.load_experiment_questions_for_group(1, only_values=False)
+    b = loader.load_experiment_questions_for_group(2, only_values=False)
+    reasoning_type_df = pd.concat([a, b])
+
+    # Get reasoning type for each question in the logger df
+    logger_df["reasoning_type"] = logger_df["question_id"].apply(lambda q_id: reasoning_type_df.isin([q_id]).any()[
+        reasoning_type_df.isin([q_id]).any() == True
+        ].index[0])
+
+    return logger_df
