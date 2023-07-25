@@ -1,5 +1,5 @@
 import numpy as np
-
+import numpy.random as random
 from scipy.stats import spearmanr
 
 
@@ -141,10 +141,71 @@ def nss(saliency_map, fixation_map):
     """
 
     # Get fixations
-    f_map = fixation_map >= 0.1
+    f_map = np.vectorize(lambda x: 1 if x > 0 else 0)(fixation_map) > 0.5
 
     # Normalize saliency map to have zero mean and unit std
     s_map = (saliency_map - np.mean(saliency_map)) / np.std(saliency_map)
 
     # Return mean saliency value at fixation locations
     return np.mean(s_map[f_map])
+
+
+def auc_judd(saliency_map, fixation_map, jitter=True):
+    '''
+
+    TAKEN FROM MIT / TUEBIGEN SALIENCY BENCHMARK
+
+    AUC stands for Area Under ROC Curve.
+    This measures how well the saliency map of an image predicts the ground truth human fixations on the image.
+    ROC curve is created by sweeping through threshold values
+    determined by range of saliency map values at fixation locations.
+    True positive (tp) rate correspond to the ratio of saliency map values above threshold
+    at fixation locations to the total number of fixation locations.
+    False positive (fp) rate correspond to the ratio of saliency map values above threshold
+    at all other locations to the total number of possible other locations (non-fixated image pixels).
+    AUC=0.5 is chance level.
+    Parameters
+    ----------
+    saliency_map : real-valued matrix
+    fixation_map : binary matrix
+        Human fixation map.
+    jitter : boolean, optional
+        If True (default), a small random number would be added to each pixel of the saliency map.
+        Jitter saliency maps that come from saliency models that have a lot of zero values.
+        If the saliency map is made with a Gaussian then it does not need to be jittered
+        as the values vary and there is not a large patch of the same value.
+        In fact, jittering breaks the ordering in the small values!
+    Returns
+    -------
+    AUC : float, between [0,1]
+    '''
+
+    saliency_map = np.array(saliency_map, copy=False)
+    fixation_map = np.array(np.vectorize(lambda x: 1 if x > 0 else 0)(fixation_map), copy=False) > 0.5
+
+    # If there are no fixation to predict, return NaN
+    if not np.any(fixation_map):
+        print('no fixation to predict')
+        return np.nan
+    # Jitter the saliency map slightly to disrupt ties of the same saliency value
+    if jitter:
+        saliency_map += random.rand(*saliency_map.shape) * 1e-7
+    # Normalize saliency map to have values between [0,1]
+    saliency_map = (saliency_map - np.min(saliency_map)) / (np.max(saliency_map) - np.min(saliency_map))
+
+    S = saliency_map.ravel()
+    F = fixation_map.ravel()
+    S_fix = S[F] # Saliency map values at fixation locations
+    n_fix = len(S_fix)
+    n_pixels = len(S)
+    # Calculate AUC
+    thresholds = sorted(S_fix, reverse=True)
+    tp = np.zeros(len(thresholds)+2)
+    fp = np.zeros(len(thresholds)+2)
+    tp[0] = 0; tp[-1] = 1
+    fp[0] = 0; fp[-1] = 1
+    for k, thresh in enumerate(thresholds):
+        above_th = np.sum(S >= thresh) # Total number of saliency map values above threshold
+        tp[k+1] = (k + 1) / float(n_fix) # Ratio saliency map values at fixation locations above threshold
+        fp[k+1] = (above_th - k - 1) / float(n_pixels - n_fix) # Ratio other saliency map values above threshold
+    return np.trapz(tp, fp) # y, x
