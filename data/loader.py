@@ -407,3 +407,24 @@ def load_computed_performance_scores_no_preproc() -> Tuple[pd.DataFrame]:
         with open(path_to, "rb") as f:
             dfs.append(pickle.load(f))
     return dfs
+
+
+def load_computed_heatmaps() -> Tuple[Dict[int, np.array]]:
+    """
+        Load and return the computed heatmaps as a Tuple of Dictionaries.
+
+        :return: Tuple of heatmap dictionaries, first one is low-res, second is gauss
+    """
+
+    ret_tuple = []
+
+    path_to_gauss = Path(PATH_DICT["GENERAL_DATA_PATH"] + "gaussian_heatmaps.pkl")
+    path_to_lowres = Path(PATH_DICT["GENERAL_DATA_PATH"] + "low_resolution_heatmaps.pkl")
+
+    with open(path_to_gauss, "rb") as f:
+        ret_tuple.append(pickle.load(f))
+
+    with open(path_to_lowres, "rb") as f:
+        ret_tuple.append(pickle.load(f))
+
+    return tuple(ret_tuple)
