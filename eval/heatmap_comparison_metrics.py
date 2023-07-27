@@ -3,6 +3,51 @@ import numpy.random as random
 from scipy.stats import spearmanr
 
 
+def convert_saliency_map_to_density(saliency_map, minimum_value=0.0):
+    if saliency_map.min() < 0:
+        saliency_map = saliency_map - saliency_map.min()
+    saliency_map = saliency_map + minimum_value
+
+    saliency_map_sum = saliency_map.sum()
+    if saliency_map_sum:
+        saliency_map = saliency_map / saliency_map_sum
+    else:
+        saliency_map[:] = 1.0
+        saliency_map /= saliency_map.sum()
+
+    return saliency_map
+
+
+def probabilistic_image_based_kl_divergence(logp1, logp2, log_regularization=0, quotient_regularization=0):
+    if log_regularization or quotient_regularization:
+        return (np.exp(logp2) * np.log(log_regularization + np.exp(logp2) / (np.exp(logp1) + quotient_regularization))).sum()
+    else:
+        return (np.exp(logp2) * (logp2 - logp1)).sum()
+
+
+def image_based_kl_divergence(saliency_map_1, saliency_map_2, minimum_value=1e-20, log_regularization=0, quotient_regularization=0):
+    """ KLDiv. Function is not symmetric. saliency_map_2 is treated as empirical saliency map. """
+    log_density_1 = np.log(convert_saliency_map_to_density(saliency_map_1, minimum_value=minimum_value))
+    log_density_2 = np.log(convert_saliency_map_to_density(saliency_map_2, minimum_value=minimum_value))
+
+    return probabilistic_image_based_kl_divergence(log_density_1, log_density_2, log_regularization=log_regularization, quotient_regularization=quotient_regularization)
+
+
+def new_kl_div(saliency_map_1, saliency_map_2):
+    """
+        Compute image-based KL divergence with same hyperparameters as in Tuebingen/MIT Saliency Benchmark.
+
+        TAKEN FROM MIT / TUEBINGEN SALIENCY BENCHMARK
+    """
+    return image_based_kl_divergence(
+        saliency_map_1,
+        saliency_map_2,
+        minimum_value=0,
+        log_regularization=2.2204e-16,
+        quotient_regularization=2.2204e-16
+    )
+
+
 def kl_divergence(machine_map: np.array, human_map: np.array, epsilon=1e-5):
     """
         Implement the Kullback-Leibler Divergence as a measure of dissimilarity
@@ -153,7 +198,7 @@ def nss(saliency_map, fixation_map):
 def auc_judd(saliency_map, fixation_map, jitter=True):
     '''
 
-    TAKEN FROM MIT / TUEBIGEN SALIENCY BENCHMARK
+    TAKEN FROM MIT / TUEBINGEN SALIENCY BENCHMARK
 
     AUC stands for Area Under ROC Curve.
     This measures how well the saliency map of an image predicts the ground truth human fixations on the image.
